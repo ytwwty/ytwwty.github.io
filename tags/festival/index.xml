@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Festival on 英語拉拉Land</title>
+    <link>https://ytwwty.github.io/tags/festival/</link>
+    <description>Recent content in Festival on 英語拉拉Land</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-tw</language>
+    <lastBuildDate>Sat, 16 Apr 2022 21:20:47 +0800</lastBuildDate><atom:link href="https://ytwwty.github.io/tags/festival/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>羊駝的第一篇文章</title>
+      <link>https://ytwwty.github.io/blog/test/</link>
+      <pubDate>Sat, 16 Apr 2022 21:20:47 +0800</pubDate>
+      
+      <guid>https://ytwwty.github.io/blog/test/</guid>
+      <description>測試文章 耶耶耶 Test 安安 我是羊駝 he is cute
+my personality</description>
+    </item>
+    
+  </channel>
+</rss>
