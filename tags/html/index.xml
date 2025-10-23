@@ -4,17 +4,16 @@
     <title>HTML on 恬恬英文Fun English </title>
     <link>https://ytwwty.github.io/tags/html/</link>
     <description>Recent content in HTML on 恬恬英文Fun English </description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Hugo</generator>
     <language>zh-tw</language>
-    <lastBuildDate>Tue, 29 Oct 2019 10:07:47 +0600</lastBuildDate><atom:link href="https://ytwwty.github.io/tags/html/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 29 Oct 2019 10:07:47 +0600</lastBuildDate>
+    <atom:link href="https://ytwwty.github.io/tags/html/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How To Use Checklists To Improve Your UX</title>
       <link>https://ytwwty.github.io/blog/post-13/</link>
       <pubDate>Tue, 29 Oct 2019 10:07:47 +0600</pubDate>
-      
       <guid>https://ytwwty.github.io/blog/post-13/</guid>
-      <description>Heading 1 Heading 2 Heading 3 Heading 4 Heading 5 Heading 6 Emphasis Emphasis, aka italics, with asterisks or underscores.</description>
+      <description>&lt;h1 id=&#34;heading-1&#34;&gt;Heading 1&lt;/h1&gt;&#xA;&lt;h2 id=&#34;heading-2&#34;&gt;Heading 2&lt;/h2&gt;&#xA;&lt;h3 id=&#34;heading-3&#34;&gt;Heading 3&lt;/h3&gt;&#xA;&lt;h4 id=&#34;heading-4&#34;&gt;Heading 4&lt;/h4&gt;&#xA;&lt;h5 id=&#34;heading-5&#34;&gt;Heading 5&lt;/h5&gt;&#xA;&lt;h6 id=&#34;heading-6&#34;&gt;Heading 6&lt;/h6&gt;&#xA;&lt;hr&gt;&#xA;&lt;h5 id=&#34;emphasis&#34;&gt;Emphasis&lt;/h5&gt;&#xA;&lt;p&gt;Emphasis, aka italics, with &lt;em&gt;asterisks&lt;/em&gt; or &lt;em&gt;underscores&lt;/em&gt;.&lt;/p&gt;</description>
     </item>
-    
   </channel>
 </rss>
