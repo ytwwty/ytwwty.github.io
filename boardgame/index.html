@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa's Suit-Up Dash</title>
+    <style>
+        /* ... existing style ... */
+        :root {
+            --primary-color: #C62828;
+            --accent-color: #1B5E20;
+            --gold: #FFC107;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-y: auto; 
+            padding: 20px;
+        }
+
+        #game-wrapper {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1400px;
+        }
+
+        #board-container {
+            width: 700px;
+            height: auto; 
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px; 
+        }
+        
+        #board-base {
+            position: absolute; 
+            top: 350px; left: 50%; 
+            width: 680px; 
+            height: 680px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 0;
+            background-color: #eee;
+            border: 5px dashed #ccc;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-weight: bold;
+            font-size: 20px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        svg {
+            width: 700px; height: 700px;
+            position: relative;
+            z-index: 10;
+            filter: none;
+        }
+
+        .cell { 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            fill: transparent;
+            stroke: transparent;
+            stroke-width: 15px; 
+            stroke-linejoin: round;
+        }
+        .cell:hover { 
+            stroke: rgba(255, 215, 0, 0.6); 
+            stroke-width: 8px;
+            filter: drop-shadow(0 0 5px gold);
+            z-index: 100; 
+        }
+        
+        .emoji-icon, .label-text, .gear-img-icon {
+            display: block; 
+            pointer-events: none;
+        }
+        
+        .image-mode .emoji-icon, 
+        .image-mode .label-text {
+            display: none !important;
+        }
+        
+        .label-text {
+            font-size: 14px;
+            fill: #333;
+            text-transform: uppercase;
+            font-weight: 800;
+            text-shadow: 1px 1px 0 #fff;
+        }
+
+        #center-label { display: none; }
+        #inner-layer-group { transform-origin: 500px 500px; }
+
+        .elf-token {
+            stroke: white; stroke-width: 3px;
+            filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4));
+            pointer-events: none; transition: cx 0.5s, cy 0.5s;
+        }
+
+        #rotate-btn-large { display: none; }
+
+        #dashboard {
+            width: 340px;
+            height: auto;
+            min-height: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        h2 { color: var(--primary-color); margin-bottom: 5px; font-weight: 800; letter-spacing: 1px; }
+        .subtitle { color: #555; font-size: 0.95em; margin-bottom: 20px; font-style: italic; text-align: center; }
+        
+        #player-controls {
+            display: flex; gap: 10px; margin-bottom: 15px;
+            background: #eee; padding: 10px; border-radius: 50px;
+        }
+        .player-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 3px solid transparent; cursor: pointer;
+            transition: transform 0.2s; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; background-color: white;
+        }
+        .player-btn:hover { transform: scale(1.1); }
+        .player-btn.active { border-color: #333; transform: scale(1.2); z-index: 10; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+        .player-btn.frozen { opacity: 0.5; cursor: not-allowed; border-color: #00BCD4; background: #E0F7FA; }
+        
+        .p-blue { background: #42A5F5; color: white; }
+        .p-yellow { background: #FFEE58; color: #555; }
+        .p-pink { background: #EC407A; color: white; }
+        .p-purple { background: #AB47BC; color: white; }
+
+        #dice-area { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        #dice-btn {
+            padding: 10px 20px; background: #FF5722; color: white;
+            border: none; border-radius: 10px; cursor: pointer;
+            font-weight: bold; font-size: 16px; box-shadow: 0 4px 0 #E64A19;
+        }
+        #dice-btn:active { transform: translateY(4px); box-shadow: none; }
+        #dice-btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
+        
+        #dice-display {
+            width: 50px; height: 50px; background: white;
+            border: 2px solid #ccc; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; font-weight: bold; color: #333;
+        }
+
+        #message-box {
+            width: 100%; padding: 10px; margin-bottom: 15px;
+            background: linear-gradient(135deg, #FFFDE7, #FFF9C4);
+            border-left: 5px solid #FFB300; border-radius: 8px;
+            font-size: 0.9em; color: #444; min-height: 50px;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+        }
+
+        #santa-stage {
+            width: 280px; height: 380px;
+            position: relative; background: #E1F5FE; 
+            border-radius: 15px; border: 4px solid white;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px; overflow: hidden;
+        }
+        .santa-layer { position: absolute; left: 50%; transform: translateX(-50%); transition: all 0.5s; pointer-events: none; }
+        .base-body { width: 180px; bottom: 20px; z-index: 1; }
+        
+        #layer-Pants { width: 100px; bottom: 55px; z-index: 5; }
+        #layer-Boots { width: 110px; bottom: 20px; z-index: 6; }
+        #layer-Coat { width: 150px; bottom: 110px; z-index: 7; }
+        #layer-Belt { width: 110px; bottom: 125px; z-index: 8; }
+        #layer-Hat { width: 100px; top: 40px; z-index: 9; }
+        #layer-Mitten-L { width: 40px; bottom: 130px; left: 50px; transform: rotate(-20deg); z-index: 6; }
+        #layer-Mitten-R { width: 40px; bottom: 130px; left: auto; right: 50px; transform: scaleX(-1) rotate(-20deg); z-index: 6; }
+        #layer-Sleigh { width: 120px; bottom: 10px; right: -20px; z-index: 10; transform: translateX(0); }
+        #layer-Reindeer { width: 100px; bottom: 10px; left: 10px; z-index: 10; transform: translateX(0); }
+        #layer-Presents { width: 80px; bottom: 10px; left: 50%; z-index: 11; transform: translateX(-50%); }
+
+        .hidden-gear { opacity: 0; transform: translateX(-50%) scale(0.5); }
+        .visible-gear { opacity: 1; transform: translateX(-50%) scale(1); }
+        
+        #layer-Mitten-L.hidden-gear { transform: rotate(-20deg) scale(0.5); opacity: 0; }
+        #layer-Mitten-L.visible-gear { transform: rotate(-20deg) scale(1); opacity: 1; }
+        #layer-Mitten-R.hidden-gear { transform: scaleX(-1) rotate(-20deg) scale(0.5); opacity: 0; }
+        #layer-Mitten-R.visible-gear { transform: scaleX(-1) rotate(-20deg) scale(1); opacity: 1; }
+
+        #gear-grid { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+            width: 100%; margin-bottom: 20px;
+        }
+        .gear-badge {
+            background: #fff; border-radius: 8px; padding: 5px; text-align: center; font-size: 10px; color: #999;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.3s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 70px; border: 1px solid #eee;
+        }
+        .gear-badge.active {
+            background: linear-gradient(135deg, #66BB6A, #43A047); color: white; 
+            transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); border: none;
+        }
+        .gear-img-icon { width: 35px; height: 35px; object-fit: contain; margin-bottom: 5px; }
+        .gear-icon { font-size: 24px; margin-bottom: 5px; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; justify-content: center; }
+        .btn { padding: 8px 16px; background: #546E7A; color: white; border: none; border-radius: 20px; cursor: pointer; }
+        .btn:hover { background: #455A64; }
+        .btn-rules { background: var(--primary-color); }
+        .btn-rules:hover { background: #B71C1C; }
+        .btn-download { background: #00897B; }
+        .btn-download:hover { background: #00695C; }
+
+        #rules-modal {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 2000;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; width: 90%; max-width: 600px;
+            padding: 30px; border-radius: 15px;
+            position: relative;
+            max-height: 90vh; overflow-y: auto;
+            border-top: 10px solid var(--accent-color);
+        }
+        .close-btn {
+            position: absolute; top: 15px; right: 20px;
+            font-size: 24px; cursor: pointer; color: #999;
+        }
+        .close-btn:hover { color: #333; }
+        .rules-title { text-align: center; color: var(--accent-color); margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px dashed #eee; padding-bottom: 10px; }
+        .rules-columns {
+            column-count: 2;
+            column-gap: 30px;
+            column-rule: 1px solid #eee;
+        }
+        .rule-block {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            background: #f9f9f9; padding: 10px; border-radius: 8px;
+        }
+        .rule-num { color: var(--primary-color); font-weight: bold; font-size: 1.2em; margin-right: 5px; }
+        .rule-head { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
+        .rule-text { color: #666; font-size: 0.9em; line-height: 1.4; }
+
+        @media (max-width: 600px) {
+            .rules-columns { column-count: 1; }
+            #board-container { transform: scale(0.5); margin-bottom: -350px; margin-top: -150px; }
+            #game-wrapper { gap: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+    <div id="board-container">
+        <div id="board-base">
+            請上傳圖片以開始<br>Please Upload Image<br><br>
+            ↘ 點擊右側按鈕 ↘
+        </div>
+        <svg id="game-board" viewBox="0 0 1000 1000">
+            <g id="outer-layer-group"></g>
+            <g id="inner-layer-group"></g>
+            <g id="token-layer"></g>
+        </svg>
+    </div>
+
+    <div id="dashboard">
+        <h2>Santa's Suit-Up Dash</h2>
+        <!-- 副標題強調團隊合作 -->
+        <div class="subtitle">Work together! Help Santa find his gear!</div>
+        
+        <div id="player-controls">
+            <div class="player-btn p-blue active" onclick="setPlayer(0)" title="Blue Elf">🧝</div>
+            <div class="player-btn p-yellow" onclick="setPlayer(1)" title="Yellow Elf">🧝‍♀️</div>
+            <div class="player-btn p-pink" onclick="setPlayer(2)" title="Pink Elf">🧝</div>
+            <div class="player-btn p-purple" onclick="setPlayer(3)" title="Purple Elf">🧝‍♀️</div>
+        </div>
+
+        <div id="dice-area">
+            <button id="dice-btn" onclick="rollDice()">🎲 Roll Dice</button>
+            <div id="dice-display">-</div>
+        </div>
+
+        <div id="message-box">請上傳您的轉盤圖片！<br>Please upload board image.</div>
+
+        <div id="santa-stage">
+            <div id="backup-santa" class="santa-layer base-body" style="display:flex; width:100%; height:100%; flex-direction:column; justify-content:center; align-items:center; bottom:0;">
+                <div style="font-size:80px">🎅</div>
+                <div style="font-size:50px; margin-top:-20px">👕</div>
+            </div>
+        </div>
+
+        <div id="gear-grid"></div>
+        
+        <div class="btn-group">
+            <input type="file" id="board-upload" accept="image/*" style="display:none" onchange="loadBoardImage(this)">
+            <button class="btn" onclick="document.getElementById('board-upload').click()" style="background:#E64A19;">🖼️ 上傳底圖 (Upload)</button>
+            <button class="btn btn-rules" onclick="toggleRules()">📜 Rules</button>
+            <button class="btn btn-download" onclick="downloadGame()">📥 下載遊戲</button>
+        </div>
+    </div>
+</div>
+
+<div id="rules-modal" onclick="if(event.target === this) toggleRules()">
+    <div class="modal-content">
+        <span class="close-btn" onclick="toggleRules()">&times;</span>
+        <h3 class="rules-title">🎄 Cooperative Rules</h3>
+        <div class="rules-columns">
+            <div class="rule-block">
+                <span class="rule-num">1.</span> <span class="rule-head">Mission (目標)</span>
+                <div class="rule-text"><b>Cooperate!</b> The 4 Elves must work together to collect all 9 items. You are a team!</div>
+            </div>
+            <div class="rule-block">
+                <span class="rule-num">2.</span> <span class="rule-head">Movement (移動)</span>
+                <div class="rule-text">Roll the dice 🎲. Start from the <b>CENTER</b>! Choose one of the 4 paths to begin.</div>
+            </div>
+            <div class="rule-block">
+                <span class="rule-num">3.</span> <span class="rule-head">Traps (陷阱)</span>
+                <div class="rule-text">
+                    <b>Hole in Sock</b>: Team loses an item.<br>
+                    <b>Snowman</b>: Freeze! Miss a turn.<br>
+                    <b>Snowstorm</b>: Go back to center (Use this to switch paths!).
+                </div>
+            </div>
+            <div class="rule-block">
+                <span class="rule-num">4.</span> <span class="rule-head">Winning (勝利)</span>
+                <div class="rule-text">When the team lights up all 9 items, Santa is ready! Everyone wins together! 🎉</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const assets = {
+        "Hat": "", "Coat": "", "Belt": "", "Pants": "", "Boots": "", 
+        "Mittens": "", "Sleigh": "", "Reindeer": "", "Presents": "", "BaseSanta": "" 
+    };
+
+    const innerGroup = document.getElementById('inner-layer-group');
+    const outerGroup = document.getElementById('outer-layer-group');
+    const tokenLayer = document.getElementById('token-layer');
+    const gearGrid = document.getElementById('gear-grid');
+    const msgBox = document.getElementById('message-box');
+    const diceDisplay = document.getElementById('dice-display');
+    const diceBtn = document.getElementById('dice-btn');
+    const santaStage = document.getElementById('santa-stage');
+    const rulesModal = document.getElementById('rules-modal');
+    const boardContainer = document.getElementById('board-container');
+
+    const players = [
+        { color: '#42A5F5', name: 'Blue', id: 0, x: 500, y: 500, isSkipped: false },
+        { color: '#FFEE58', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
+        { color: '#EC407A', name: 'Pink', id: 2, x: 500, y: 500, isSkipped: false },
+        { color: '#AB47BC', name: 'Purple', id: 3, x: 500, y: 500, isSkipped: false }
+    ];
+    let currentPlayerId = 0;
+
+    function loadBoardImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                const boardBase = document.getElementById('board-base');
+                boardBase.style.backgroundImage = "url('" + e.target.result + "')";
+                boardBase.innerText = ""; 
+                boardBase.style.border = "none";
+                boardContainer.classList.add('image-mode');
+                msgBox.innerHTML = "Board Loaded! Roll the dice to start.";
+                msgBox.style.borderLeftColor = "#4CAF50";
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    function downloadGame() {
+        const htmlContent = document.documentElement.outerHTML;
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'santas_adventure_game.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function toggleRules() {
+        rulesModal.style.display = (rulesModal.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function initStage() {
+        document.getElementById('backup-santa').style.display = 'flex';
+    }
+    initStage();
+
+    const gearList = [
+        { id: "Hat", icon: "🧢" }, 
+        { id: "Coat", icon: "🧥" }, 
+        { id: "Pants", icon: "👖" },
+        { id: "Boots", icon: "👢" }, 
+        { id: "Belt", icon: "〰️" }, 
+        { id: "Mittens", icon: "🧤" },
+        { id: "Sleigh", icon: "🛷" }, 
+        { id: "Reindeer", icon: "🦌" }, 
+        { id: "Presents", icon: "🎁" }
+    ];
+
+    gearList.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'gear-badge';
+        div.id = `badge-${item.id}`;
+        let emojiBackup = `<span class="gear-icon">${item.icon}</span>`;
+        div.innerHTML = `${emojiBackup}<div style="font-weight:bold">${item.id}</div>`;
+        gearGrid.appendChild(div);
+    });
+
+    let collectedItems = new Set();
+    
+    // --- 外圈 (16格) 順時針 ---
+    const fixedOuterData = [
+        { name: "Presents", type: "gear", icon: "🎁" }, // 12:00
+        { name: "Snowstorm", type: "trap", icon: "🌀" }, // 回中心!
+        { name: "Hat", type: "gear", icon: "🧢" },
+        { name: "Wreath", type: "deco", icon: "🎄" },
+        { name: "Pants", type: "gear", icon: "👖" }, // 3:00
+        { name: "Hole in Sock", type: "trap", icon: "🕳️" },
+        { name: "Boots", type: "gear", icon: "👢" },
+        { name: "Gingerbread", type: "bonus", icon: "🍪" },
+        { name: "Belt", type: "gear", icon: "〰️" }, // 6:00
+        { name: "Snowman", type: "trap", icon: "⛄" },
+        { name: "Reindeer", type: "gear", icon: "🦌" },
+        { name: "Stockings", type: "bonus", icon: "🧦" }, // Roll Again
+        { name: "Presents", type: "gear", icon: "🎁" }, // 9:00
+        { name: "Snowstorm", type: "trap", icon: "🌀" }, // 回中心!
+        { name: "Mittens", type: "gear", icon: "🧤" },
+        { name: "Candy Cane", type: "bonus", icon: "🍬" }
+    ];
+
+    // --- 內圈 (4手 x 3層) ---
+    // 程式碼繪製順序：Outer(3) -> Middle(2) -> Inner(1)
+    // 所以这里的数组顺序要是：[最外層, 中間層, 最內層]
+    const fixedInnerData = [
+        // 1. Top-Right Arm (右上 ↗)
+        { name: "Sleigh", type: "gear", icon: "🛷" },      // Outer (Reward)
+        { name: "Hole in Sock", type: "trap", icon: "🕳️" }, // Middle (Trap)
+        { name: "Candy Cane", type: "bonus", icon: "🍬" },  // Inner (Start)
+
+        // 2. Bottom-Right Arm (右下 ↘)
+        { name: "Reindeer", type: "gear", icon: "🦌" },     // Outer
+        { name: "Boots", type: "gear", icon: "👢" },       // Middle
+        { name: "Wreath", type: "deco", icon: "🎄" },      // Inner
+
+        // 3. Bottom-Left Arm (左下 ↙)
+        { name: "Mittens", type: "gear", icon: "🧤" },     // Outer
+        { name: "Pants", type: "gear", icon: "👖" },       // Middle
+        { name: "Stockings", type: "bonus", icon: "🧦" },  // Inner
+
+        // 4. Top-Left Arm (左上 ↖)
+        { name: "Coat", type: "gear", icon: "🧥" },        // Outer
+        { name: "Snowman", type: "trap", icon: "⛄" },     // Middle
+        { name: "Belt", type: "gear", icon: "〰️" }         // Inner
+    ];
+
+    function createSectorPath(cx, cy, rOuter, rInner, startAngle, endAngle) {
+        const rad = Math.PI / 180;
+        const x1 = cx + rOuter * Math.cos(startAngle * rad), y1 = cy + rOuter * Math.sin(startAngle * rad);
+        const x2 = cx + rOuter * Math.cos(endAngle * rad), y2 = cy + rOuter * Math.sin(endAngle * rad);
+        const x3 = cx + rInner * Math.cos(endAngle * rad), y3 = cy + rInner * Math.sin(endAngle * rad);
+        const x4 = cx + rInner * Math.cos(startAngle * rad), y4 = cy + rInner * Math.sin(startAngle * rad);
+        const largeArc = (endAngle - startAngle) > 180 ? 1 : 0;
+        return `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+    }
+
+    function drawCell(startDeg, sweepDeg, rOut, rIn, data, containerGroup) {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const d = createSectorPath(500, 500, rOut, rIn, startDeg, startDeg + sweepDeg);
+        
+        path.setAttribute("d", d); 
+        path.setAttribute("class", `cell`); 
+        
+        const midDeg = startDeg + sweepDeg / 2;
+        const rMid = (rOut + rIn)/2;
+        const cx = 500 + rMid * Math.cos(midDeg * Math.PI / 180);
+        const cy = 500 + rMid * Math.sin(midDeg * Math.PI / 180);
+
+        const isInnerCell = containerGroup.id === 'inner-layer-group';
+        path.onclick = () => {
+            moveToken(currentPlayerId, cx, cy, isInnerCell);
+            handleGameAction(data);
+        };
+        containerGroup.appendChild(path);
+        
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.setAttribute("transform", `translate(${cx}, ${cy}) rotate(${midDeg + 90})`);
+        
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        icon.textContent = data.icon; icon.setAttribute("class", "emoji-icon"); icon.setAttribute("y", -8);
+        group.appendChild(icon);
+        
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.textContent = data.name; label.setAttribute("class", "label-text"); label.setAttribute("y", 20); 
+        group.appendChild(label);
+        
+        group.setAttribute("pointer-events", "none");
+        containerGroup.appendChild(group);
+    }
+
+    for(let i=0; i<16; i++) {
+        const data = fixedOuterData[i] || { name: "Bonus", type: "bonus" };
+        drawCell(i * (360/16) - 90, 360/16, 450, 360, data, outerGroup);
+    }
+
+    const arms = [315, 45, 135, 225];
+    const armSweep = 45;
+    const layers = [
+        { rOut: 360, rIn: 260 }, 
+        { rOut: 260, rIn: 160 }, 
+        { rOut: 160, rIn: 60 }   
+    ]; 
+    
+    let itemIndex = 0;
+    arms.forEach(armDeg => {
+        layers.forEach(layer => {
+            const data = fixedInnerData[itemIndex] || { name: "Bonus", type: "bonus" };
+            drawCell(armDeg - (armSweep/2) - 90, armSweep, layer.rOut, layer.rIn, data, innerGroup);
+            itemIndex++;
+        });
+    });
+
+    function initTokens() {
+        players.forEach(p => {
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", p.x); circle.setAttribute("cy", p.y);
+            circle.setAttribute("r", 15);
+            circle.setAttribute("fill", p.color);
+            circle.setAttribute("class", "elf-token");
+            circle.id = `token-${p.id}`;
+            tokenLayer.appendChild(circle);
+        });
+    }
+    initTokens();
+
+    function setPlayer(id) {
+        currentPlayerId = id;
+        document.querySelectorAll('.player-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (players[btn.onclick.toString().match(/\d+/)[0]].isSkipped) {
+                btn.classList.add('frozen');
+            } else {
+                btn.classList.remove('frozen');
+            }
+        });
+        
+        const currentBtn = document.querySelectorAll('.player-btn')[id];
+        currentBtn.classList.add('active');
+        
+        if (players[id].isSkipped) {
+            msgBox.innerHTML = `<span style="color:${players[id].color}">${players[id].name}</span> is <b>Frozen!</b> ⛄ Skipping turn...`;
+            msgBox.style.borderLeftColor = "#00BCD4";
+            diceBtn.disabled = true;
+            
+            setTimeout(() => {
+                players[id].isSkipped = false; 
+                diceBtn.disabled = false;
+                let nextId = (id + 1) % 4; 
+                setPlayer(nextId);
+            }, 2000);
+        } else {
+            diceBtn.disabled = false;
+            msgBox.innerHTML = `Hi <span style="color:${players[id].color}; font-weight:bold">${players[id].name} Elf</span>! Roll the dice.`;
+            msgBox.style.borderLeftColor = "#FFB300";
+        }
+    }
+
+    function rollDice() {
+        const num = Math.floor(Math.random() * 6) + 1;
+        diceDisplay.textContent = num;
+        msgBox.innerHTML = `Rolled a <b>${num}</b>! Move ${num} spaces.`;
+    }
+
+    function moveToken(playerId, x, y, isInner) {
+        const offsetX = (playerId % 2 === 0 ? -10 : 10);
+        const offsetY = (playerId < 2 ? -10 : 10);
+        const token = document.getElementById(`token-${playerId}`);
+        if (isInner) innerGroup.appendChild(token); else tokenLayer.appendChild(token);
+        token.setAttribute("cx", x + offsetX);
+        token.setAttribute("cy", y + offsetY);
+    }
+
+    function handleGameAction(data) {
+        const player = players[currentPlayerId];
+        const pName = `<span style="color:${player.color}">${player.name} Elf</span>`;
+
+        // 1. 處理陷阱
+        if (data.type === 'trap') {
+             if (data.name === "Hole in Sock") {
+                if (collectedItems.size > 0) {
+                    const itemsArray = Array.from(collectedItems);
+                    const lostItem = itemsArray[Math.floor(Math.random() * itemsArray.length)];
+                    collectedItems.delete(lostItem);
+                    updateVisuals(lostItem, false);
+                    msgBox.innerHTML = `${pName}: 🕳️ <b>Hole in Sock!</b> The Team Lost ${lostItem}.`; 
+                } else {
+                    msgBox.innerHTML = `${pName}: 🕳️ <b>Hole in Sock!</b> (Safe! No items).`;
+                }
+             } else if (data.name === "Snowstorm") {
+                 msgBox.innerHTML = `${pName}: 🌀 <b>Snowstorm!</b> Back to Center!`;
+                 moveToken(currentPlayerId, 500, 500, false); 
+             } else if (data.name === "Snowman") {
+                 msgBox.innerHTML = `${pName}: ⛄ <b>Snowman!</b> You are Frozen next turn!`;
+                 players[currentPlayerId].isSkipped = true;
+             }
+             msgBox.style.borderLeftColor = "#546E7A";
+             return;
+        }
+
+        // 2. 處理獎勵
+        if (data.type === 'bonus') {
+            if (data.name === "Candy Cane") {
+                msgBox.innerHTML = `${pName}: 🍬 <b>Candy Cane!</b> Move 1 space forward.`;
+            } else if (data.name === "Gingerbread") {
+                msgBox.innerHTML = `${pName}: 🍪 <b>Gingerbread!</b> Move 2 spaces forward.`;
+            } else if (data.name === "Stockings") {
+                msgBox.innerHTML = `${pName}: 🧦 <b>Stockings!</b> Lucky! Roll Again!`;
+            }
+            msgBox.style.borderLeftColor = "#E91E63";
+            return;
+        }
+        
+        // 3. 處理裝飾 (安全)
+        if (data.type === 'deco') {
+            msgBox.innerHTML = `${pName}: 🎄 <b>${data.name}</b>. Just relaxing.`;
+            msgBox.style.borderLeftColor = "#8BC34A";
+            return;
+        }
+
+        // 4. 處理裝備收集 (更新文字為團隊)
+        if (data.type === 'gear') {
+            if (!collectedItems.has(data.name)) {
+                collectedItems.add(data.name);
+                updateVisuals(data.name, true);
+                msgBox.innerHTML = `${pName}: 🎉 <b>Found ${data.name}</b> for the Team!`; 
+                msgBox.style.borderLeftColor = "#4CAF50";
+                if (collectedItems.size === 9) {
+                    msgBox.innerHTML = `🏆 <b>MISSION COMPLETE!</b> The Team wins!`; 
+                    msgBox.style.background = "#FFD700";
+                }
+            } else {
+                msgBox.innerHTML = `${pName}: 👍 The Team already has <b>${data.name}</b>.`; 
+                msgBox.style.borderLeftColor = "#81C784";
+            }
+            return;
+        }
+    }
+
+    function updateVisuals(name, isVisible) {
+        const badge = document.getElementById(`badge-${name}`);
+        if (badge) isVisible ? badge.classList.add('active') : badge.classList.remove('active');
+    }
+</script>
+
+</body>
+</html>
