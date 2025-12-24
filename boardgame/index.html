@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Santa's Suit-Up Dash</title>
     <style>
-        /* ... existing style ... */
         :root {
             --primary-color: #C62828;
             --accent-color: #1B5E20;
@@ -91,14 +90,36 @@
             z-index: 100; 
         }
         
-        .emoji-icon, .label-text, .gear-img-icon {
+        .emoji-icon, .label-text {
             display: block; 
             pointer-events: none;
         }
         
+        /* 圖片模式下，預設隱藏文字，除非開啟 Debug ID */
         .image-mode .emoji-icon, 
         .image-mode .label-text {
             display: none !important;
+        }
+
+        /* Debug ID 顯示樣式 */
+        .debug-id {
+            display: none;
+            font-size: 16px;
+            fill: #fff;
+            stroke: #000;
+            stroke-width: 3px;
+            paint-order: stroke;
+            font-weight: bold;
+            pointer-events: none;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+        .show-ids .debug-id {
+            display: block !important;
+        }
+        .show-ids .cell {
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 2px;
         }
         
         .label-text {
@@ -109,7 +130,6 @@
             text-shadow: 1px 1px 0 #fff;
         }
 
-        #center-label { display: none; }
         #inner-layer-group { transform-origin: 500px 500px; }
 
         .elf-token {
@@ -117,8 +137,6 @@
             filter: drop-shadow(0 3px 5px rgba(0,0,0,0.4));
             pointer-events: none; transition: cx 0.5s, cy 0.5s;
         }
-
-        #rotate-btn-large { display: none; }
 
         #dashboard {
             width: 340px;
@@ -191,17 +209,6 @@
         .santa-layer { position: absolute; left: 50%; transform: translateX(-50%); transition: all 0.5s; pointer-events: none; }
         .base-body { width: 180px; bottom: 20px; z-index: 1; }
         
-        #layer-Pants { width: 100px; bottom: 55px; z-index: 5; }
-        #layer-Boots { width: 110px; bottom: 20px; z-index: 6; }
-        #layer-Coat { width: 150px; bottom: 110px; z-index: 7; }
-        #layer-Belt { width: 110px; bottom: 125px; z-index: 8; }
-        #layer-Hat { width: 100px; top: 40px; z-index: 9; }
-        #layer-Mitten-L { width: 40px; bottom: 130px; left: 50px; transform: rotate(-20deg); z-index: 6; }
-        #layer-Mitten-R { width: 40px; bottom: 130px; left: auto; right: 50px; transform: scaleX(-1) rotate(-20deg); z-index: 6; }
-        #layer-Sleigh { width: 120px; bottom: 10px; right: -20px; z-index: 10; transform: translateX(0); }
-        #layer-Reindeer { width: 100px; bottom: 10px; left: 10px; z-index: 10; transform: translateX(0); }
-        #layer-Presents { width: 80px; bottom: 10px; left: 50%; z-index: 11; transform: translateX(-50%); }
-
         .hidden-gear { opacity: 0; transform: translateX(-50%) scale(0.5); }
         .visible-gear { opacity: 1; transform: translateX(-50%) scale(1); }
         
@@ -232,8 +239,14 @@
         .btn:hover { background: #455A64; }
         .btn-rules { background: var(--primary-color); }
         .btn-rules:hover { background: #B71C1C; }
+        .btn-config { background: #7B1FA2; }
+        .btn-config:hover { background: #4A148C; }
         .btn-download { background: #00897B; }
         .btn-download:hover { background: #00695C; }
+        
+        #toggle-ids {
+            font-size: 12px; margin-top: 5px; cursor: pointer; color: #666; text-decoration: underline;
+        }
 
         #rules-modal {
             display: none;
@@ -280,7 +293,7 @@
 <div id="game-wrapper">
     <div id="board-container">
         <div id="board-base">
-            請上傳圖片以開始<br>Please Upload Image<br><br>
+            1. 上傳圖片 (Image)<br>2. 上傳設定 (Config)<br><br>
             ↘ 點擊右側按鈕 ↘
         </div>
         <svg id="game-board" viewBox="0 0 1000 1000">
@@ -288,11 +301,11 @@
             <g id="inner-layer-group"></g>
             <g id="token-layer"></g>
         </svg>
+        <div id="toggle-ids" onclick="toggleDebugIds()">[👁️ 顯示/隱藏 格子編號]</div>
     </div>
 
     <div id="dashboard">
         <h2>Santa's Suit-Up Dash</h2>
-        <!-- 副標題強調團隊合作 -->
         <div class="subtitle">Work together! Help Santa find his gear!</div>
         
         <div id="player-controls">
@@ -320,9 +333,13 @@
         
         <div class="btn-group">
             <input type="file" id="board-upload" accept="image/*" style="display:none" onchange="loadBoardImage(this)">
-            <button class="btn" onclick="document.getElementById('board-upload').click()" style="background:#E64A19;">🖼️ 上傳底圖 (Upload)</button>
+            <button class="btn" onclick="document.getElementById('board-upload').click()" style="background:#E64A19;">🖼️ 上傳底圖</button>
+            
+            <input type="file" id="config-upload" accept=".txt,.json" style="display:none" onchange="loadConfig(this)">
+            <button class="btn btn-config" onclick="document.getElementById('config-upload').click()">📄 上傳設定</button>
+            
             <button class="btn btn-rules" onclick="toggleRules()">📜 Rules</button>
-            <button class="btn btn-download" onclick="downloadGame()">📥 下載遊戲</button>
+            <button class="btn btn-download" onclick="downloadGame()">📥 下載</button>
         </div>
     </div>
 </div>
@@ -357,10 +374,54 @@
 </div>
 
 <script>
-    const assets = {
-        "Hat": "", "Coat": "", "Belt": "", "Pants": "", "Boots": "", 
-        "Mittens": "", "Sleigh": "", "Reindeer": "", "Presents": "", "BaseSanta": "" 
+    const players = [
+        { color: '#42A5F5', name: 'Blue', id: 0, x: 500, y: 500, isSkipped: false },
+        { color: '#FFEE58', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
+        { color: '#EC407A', name: 'Pink', id: 2, x: 500, y: 500, isSkipped: false },
+        { color: '#AB47BC', name: 'Purple', id: 3, x: 500, y: 500, isSkipped: false }
+    ];
+    let currentPlayerId = 0;
+    let collectedItems = new Set();
+
+    const itemDB = {
+        "coat": { type: "gear", icon: "🧥", name: "Coat" },
+        "pants": { type: "gear", icon: "👖", name: "Pants" },
+        "hole in sock": { type: "trap", icon: "🕳️", name: "Hole in Sock" },
+        "mittens": { type: "gear", icon: "🧤", name: "Mittens" },
+        "reindeer": { type: "gear", icon: "🦌", name: "Reindeer" },
+        "belt": { type: "gear", icon: "〰️", name: "Belt" },
+        "snowstorm": { type: "trap", icon: "🌀", name: "Snowstorm" },
+        "sleigh": { type: "gear", icon: "🛷", name: "Sleigh" },
+        "candy cane": { type: "bonus", icon: "🍬", name: "Candy Cane" },
+        "boots": { type: "gear", icon: "👢", name: "Boots" },
+        "gingerbread": { type: "bonus", icon: "🍪", name: "Gingerbread" },
+        "presents": { type: "gear", icon: "🎁", name: "Presents" },
+        "stockings": { type: "bonus", icon: "🧦", name: "Stockings" },
+        "hat": { type: "gear", icon: "🧢", name: "Hat" },
+        "miss a turn": { type: "trap", icon: "🛑", name: "Miss a Turn" },
+        "snowman": { type: "trap", icon: "⛄", name: "Snowman" },
+        "wreath": { type: "deco", icon: "🎄", name: "Wreath" },
+        "christmas tree": { type: "deco", icon: "🎄", name: "Wreath" }, 
+        "lost a piece": { type: "trap", icon: "💨", name: "Lost a Piece" },
+        "move back 1 space": { type: "trap", icon: "🔙", name: "Move Back" },
+        "move ahead 2 spaces": { type: "bonus", icon: "⏩", name: "Move Ahead 2" },
+        "back to the center": { type: "trap", icon: "🌀", name: "Back to Center" },
+        "star": { type: "bonus", icon: "⭐", name: "Star" }
     };
+
+    // 預設資料 (對應 Mapping V2)
+    let outerDataMap = [
+        "Coat", "Pants", "Hole in sock", "Mittens", "Reindeer", "Belt", "Snowstorm", "Sleigh",
+        "Candy cane", "Boots", "Gingerbread", "Presents", "Stockings", "Snowstorm", "Snowstorm", "Hat"
+    ];
+
+    // 內圈分支: [TL, TR, BR, BL] (由外向內：1->2->3)
+    let innerDataMap = [
+        ["Presents", "Coat", "Snowman"],           // TL (Index 0)
+        ["Wreath", "Candy cane", "Sleigh"],       // TR (Index 1)
+        ["Reindeer", "Hole in sock", "Boots"],    // BR (Index 2)
+        ["Stockings", "Pants", "Mittens"]         // BL (Index 3)
+    ];
 
     const innerGroup = document.getElementById('inner-layer-group');
     const outerGroup = document.getElementById('outer-layer-group');
@@ -369,17 +430,7 @@
     const msgBox = document.getElementById('message-box');
     const diceDisplay = document.getElementById('dice-display');
     const diceBtn = document.getElementById('dice-btn');
-    const santaStage = document.getElementById('santa-stage');
-    const rulesModal = document.getElementById('rules-modal');
     const boardContainer = document.getElementById('board-container');
-
-    const players = [
-        { color: '#42A5F5', name: 'Blue', id: 0, x: 500, y: 500, isSkipped: false },
-        { color: '#FFEE58', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
-        { color: '#EC407A', name: 'Pink', id: 2, x: 500, y: 500, isSkipped: false },
-        { color: '#AB47BC', name: 'Purple', id: 3, x: 500, y: 500, isSkipped: false }
-    ];
-    let currentPlayerId = 0;
 
     function loadBoardImage(input) {
         if (input.files && input.files[0]) {
@@ -390,13 +441,152 @@
                 boardBase.innerText = ""; 
                 boardBase.style.border = "none";
                 boardContainer.classList.add('image-mode');
-                msgBox.innerHTML = "Board Loaded! Roll the dice to start.";
+                msgBox.innerHTML = "Image Loaded! <br>Upload Config or Roll Dice to start.";
                 msgBox.style.borderLeftColor = "#4CAF50";
             };
             reader.readAsDataURL(input.files[0]);
         }
     }
-    
+
+    function loadConfig(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                const text = e.target.result;
+                parseConfig(text);
+                refreshBoard(); 
+                msgBox.innerHTML = "📄 Config Loaded Successfully!";
+                msgBox.style.borderLeftColor = "#9C27B0";
+            };
+            reader.readAsText(input.files[0]);
+        }
+    }
+
+    function parseConfig(text) {
+        const lines = text.split(/\r?\n/);
+        lines.forEach(line => {
+            const parts = line.split(':');
+            if (parts.length >= 2) {
+                const key = parts[0].trim().toUpperCase(); 
+                const val = parts[1].trim(); 
+                
+                if (key.startsWith('O') && !isNaN(parseInt(key.substring(1)))) {
+                    const idx = parseInt(key.substring(1)) - 1;
+                    if (idx >= 0 && idx < 16) outerDataMap[idx] = val;
+                }
+                else {
+                    let armIdx = -1;
+                    // Mapping: TL=0, TR=1, BR=2, BL=3
+                    if (key.startsWith('TL')) armIdx = 0;
+                    else if (key.startsWith('TR')) armIdx = 1;
+                    else if (key.startsWith('BR')) armIdx = 2;
+                    else if (key.startsWith('BL')) armIdx = 3;
+
+                    if (armIdx !== -1) {
+                        const cellIdx = parseInt(key.substring(2)) - 1; 
+                        if (cellIdx >= 0 && cellIdx < 3) {
+                            innerDataMap[armIdx][cellIdx] = val;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function getItemData(name) {
+        if (!name) return { type: "bonus", icon: "❓", name: "Unknown" };
+        const lowerName = name.toLowerCase();
+        return itemDB[lowerName] || { type: "bonus", icon: "❓", name: name };
+    }
+
+    function refreshBoard() {
+        outerGroup.innerHTML = '';
+        innerGroup.innerHTML = '';
+        
+        for(let i=0; i<16; i++) {
+            const data = getItemData(outerDataMap[i]);
+            drawCell(i * (360/16) - 90, 360/16, 450, 360, data, outerGroup, `O${i+1}`);
+        }
+
+        // 重繪內圈 (順時針修正版 - TL, TR, BR, BL)
+        // 陣列內容修正為 [315, 45, 135, 225]
+        // TL Data (Idx 0) -> 給定 315 -> 扣掉90後 = 225 (左上 TL)
+        // TR Data (Idx 1) -> 給定 45 -> 扣掉90後 = -45/315 (右上 TR)
+        const arms = [315, 45, 135, 225]; 
+        const armCodes = ["TL", "TR", "BR", "BL"]; 
+        const armSweep = 45;
+        const layers = [
+            { rOut: 360, rIn: 260 }, 
+            { rOut: 260, rIn: 160 }, 
+            { rOut: 160, rIn: 60 }   
+        ]; 
+        
+        arms.forEach((armDeg, armIndex) => {
+            const armData = innerDataMap[armIndex]; 
+            layers.forEach((layer, layerIndex) => {
+                const data = getItemData(armData[layerIndex]);
+                const cellId = `${armCodes[armIndex]}${layerIndex+1}`;
+                drawCell(armDeg - (armSweep/2) - 90, armSweep, layer.rOut, layer.rIn, data, innerGroup, cellId);
+            });
+        });
+    }
+
+    function createSectorPath(cx, cy, rOuter, rInner, startAngle, endAngle) {
+        const rad = Math.PI / 180;
+        const x1 = cx + rOuter * Math.cos(startAngle * rad), y1 = cy + rOuter * Math.sin(startAngle * rad);
+        const x2 = cx + rOuter * Math.cos(endAngle * rad), y2 = cy + rOuter * Math.sin(endAngle * rad);
+        const x3 = cx + rInner * Math.cos(endAngle * rad), y3 = cy + rInner * Math.sin(endAngle * rad);
+        const x4 = cx + rInner * Math.cos(startAngle * rad), y4 = cy + rInner * Math.sin(startAngle * rad);
+        const largeArc = (endAngle - startAngle) > 180 ? 1 : 0;
+        return `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+    }
+
+    function drawCell(startDeg, sweepDeg, rOut, rIn, data, containerGroup, debugId) {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        const d = createSectorPath(500, 500, rOut, rIn, startDeg, startDeg + sweepDeg);
+        
+        path.setAttribute("d", d); 
+        path.setAttribute("class", `cell`); 
+        
+        const midDeg = startDeg + sweepDeg / 2;
+        const rMid = (rOut + rIn)/2;
+        const cx = 500 + rMid * Math.cos(midDeg * Math.PI / 180);
+        const cy = 500 + rMid * Math.sin(midDeg * Math.PI / 180);
+
+        path.onclick = () => {
+            const isInner = containerGroup.id === 'inner-layer-group';
+            moveToken(currentPlayerId, cx, cy, isInner);
+            handleGameAction(data);
+        };
+        containerGroup.appendChild(path);
+        
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.setAttribute("transform", `translate(${cx}, ${cy}) rotate(${midDeg + 90})`);
+        
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        icon.textContent = data.icon; icon.setAttribute("class", "emoji-icon"); icon.setAttribute("y", -8);
+        group.appendChild(icon);
+        
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.textContent = data.name; label.setAttribute("class", "label-text"); label.setAttribute("y", 20); 
+        group.appendChild(label);
+
+        const idText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        idText.textContent = debugId; 
+        idText.setAttribute("class", "debug-id");
+        if(containerGroup.id === 'inner-layer-group') {
+             idText.setAttribute("transform", `rotate(-${midDeg + 90})`);
+        }
+        group.appendChild(idText);
+        
+        group.setAttribute("pointer-events", "none");
+        containerGroup.appendChild(group);
+    }
+
+    function toggleDebugIds() {
+        boardContainer.classList.toggle('show-ids');
+    }
+
     function downloadGame() {
         const htmlContent = document.documentElement.outerHTML;
         const blob = new Blob([htmlContent], { type: 'text/html' });
@@ -413,11 +603,6 @@
     function toggleRules() {
         rulesModal.style.display = (rulesModal.style.display === 'flex') ? 'none' : 'flex';
     }
-
-    function initStage() {
-        document.getElementById('backup-santa').style.display = 'flex';
-    }
-    initStage();
 
     const gearList = [
         { id: "Hat", icon: "🧢" }, 
@@ -440,118 +625,7 @@
         gearGrid.appendChild(div);
     });
 
-    let collectedItems = new Set();
-    
-    // --- 外圈 (16格) 順時針 ---
-    const fixedOuterData = [
-        { name: "Presents", type: "gear", icon: "🎁" }, // 12:00
-        { name: "Snowstorm", type: "trap", icon: "🌀" }, // 回中心!
-        { name: "Hat", type: "gear", icon: "🧢" },
-        { name: "Wreath", type: "deco", icon: "🎄" },
-        { name: "Pants", type: "gear", icon: "👖" }, // 3:00
-        { name: "Hole in Sock", type: "trap", icon: "🕳️" },
-        { name: "Boots", type: "gear", icon: "👢" },
-        { name: "Gingerbread", type: "bonus", icon: "🍪" },
-        { name: "Belt", type: "gear", icon: "〰️" }, // 6:00
-        { name: "Snowman", type: "trap", icon: "⛄" },
-        { name: "Reindeer", type: "gear", icon: "🦌" },
-        { name: "Stockings", type: "bonus", icon: "🧦" }, // Roll Again
-        { name: "Presents", type: "gear", icon: "🎁" }, // 9:00
-        { name: "Snowstorm", type: "trap", icon: "🌀" }, // 回中心!
-        { name: "Mittens", type: "gear", icon: "🧤" },
-        { name: "Candy Cane", type: "bonus", icon: "🍬" }
-    ];
-
-    // --- 內圈 (4手 x 3層) ---
-    // 程式碼繪製順序：Outer(3) -> Middle(2) -> Inner(1)
-    // 所以这里的数组顺序要是：[最外層, 中間層, 最內層]
-    const fixedInnerData = [
-        // 1. Top-Right Arm (右上 ↗)
-        { name: "Sleigh", type: "gear", icon: "🛷" },      // Outer (Reward)
-        { name: "Hole in Sock", type: "trap", icon: "🕳️" }, // Middle (Trap)
-        { name: "Candy Cane", type: "bonus", icon: "🍬" },  // Inner (Start)
-
-        // 2. Bottom-Right Arm (右下 ↘)
-        { name: "Reindeer", type: "gear", icon: "🦌" },     // Outer
-        { name: "Boots", type: "gear", icon: "👢" },       // Middle
-        { name: "Wreath", type: "deco", icon: "🎄" },      // Inner
-
-        // 3. Bottom-Left Arm (左下 ↙)
-        { name: "Mittens", type: "gear", icon: "🧤" },     // Outer
-        { name: "Pants", type: "gear", icon: "👖" },       // Middle
-        { name: "Stockings", type: "bonus", icon: "🧦" },  // Inner
-
-        // 4. Top-Left Arm (左上 ↖)
-        { name: "Coat", type: "gear", icon: "🧥" },        // Outer
-        { name: "Snowman", type: "trap", icon: "⛄" },     // Middle
-        { name: "Belt", type: "gear", icon: "〰️" }         // Inner
-    ];
-
-    function createSectorPath(cx, cy, rOuter, rInner, startAngle, endAngle) {
-        const rad = Math.PI / 180;
-        const x1 = cx + rOuter * Math.cos(startAngle * rad), y1 = cy + rOuter * Math.sin(startAngle * rad);
-        const x2 = cx + rOuter * Math.cos(endAngle * rad), y2 = cy + rOuter * Math.sin(endAngle * rad);
-        const x3 = cx + rInner * Math.cos(endAngle * rad), y3 = cy + rInner * Math.sin(endAngle * rad);
-        const x4 = cx + rInner * Math.cos(startAngle * rad), y4 = cy + rInner * Math.sin(startAngle * rad);
-        const largeArc = (endAngle - startAngle) > 180 ? 1 : 0;
-        return `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
-    }
-
-    function drawCell(startDeg, sweepDeg, rOut, rIn, data, containerGroup) {
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        const d = createSectorPath(500, 500, rOut, rIn, startDeg, startDeg + sweepDeg);
-        
-        path.setAttribute("d", d); 
-        path.setAttribute("class", `cell`); 
-        
-        const midDeg = startDeg + sweepDeg / 2;
-        const rMid = (rOut + rIn)/2;
-        const cx = 500 + rMid * Math.cos(midDeg * Math.PI / 180);
-        const cy = 500 + rMid * Math.sin(midDeg * Math.PI / 180);
-
-        const isInnerCell = containerGroup.id === 'inner-layer-group';
-        path.onclick = () => {
-            moveToken(currentPlayerId, cx, cy, isInnerCell);
-            handleGameAction(data);
-        };
-        containerGroup.appendChild(path);
-        
-        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        group.setAttribute("transform", `translate(${cx}, ${cy}) rotate(${midDeg + 90})`);
-        
-        const icon = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        icon.textContent = data.icon; icon.setAttribute("class", "emoji-icon"); icon.setAttribute("y", -8);
-        group.appendChild(icon);
-        
-        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        label.textContent = data.name; label.setAttribute("class", "label-text"); label.setAttribute("y", 20); 
-        group.appendChild(label);
-        
-        group.setAttribute("pointer-events", "none");
-        containerGroup.appendChild(group);
-    }
-
-    for(let i=0; i<16; i++) {
-        const data = fixedOuterData[i] || { name: "Bonus", type: "bonus" };
-        drawCell(i * (360/16) - 90, 360/16, 450, 360, data, outerGroup);
-    }
-
-    const arms = [315, 45, 135, 225];
-    const armSweep = 45;
-    const layers = [
-        { rOut: 360, rIn: 260 }, 
-        { rOut: 260, rIn: 160 }, 
-        { rOut: 160, rIn: 60 }   
-    ]; 
-    
-    let itemIndex = 0;
-    arms.forEach(armDeg => {
-        layers.forEach(layer => {
-            const data = fixedInnerData[itemIndex] || { name: "Bonus", type: "bonus" };
-            drawCell(armDeg - (armSweep/2) - 90, armSweep, layer.rOut, layer.rIn, data, innerGroup);
-            itemIndex++;
-        });
-    });
+    refreshBoard();
 
     function initTokens() {
         players.forEach(p => {
@@ -617,50 +691,50 @@
         const player = players[currentPlayerId];
         const pName = `<span style="color:${player.color}">${player.name} Elf</span>`;
 
-        // 1. 處理陷阱
         if (data.type === 'trap') {
-             if (data.name === "Hole in Sock") {
+             if (data.name === "Hole in Sock" || data.name === "Lost a Piece") {
                 if (collectedItems.size > 0) {
                     const itemsArray = Array.from(collectedItems);
                     const lostItem = itemsArray[Math.floor(Math.random() * itemsArray.length)];
                     collectedItems.delete(lostItem);
                     updateVisuals(lostItem, false);
-                    msgBox.innerHTML = `${pName}: 🕳️ <b>Hole in Sock!</b> The Team Lost ${lostItem}.`; 
+                    msgBox.innerHTML = `${pName}: 🕳️ <b>${data.name}!</b> Team Lost ${lostItem}.`; 
                 } else {
-                    msgBox.innerHTML = `${pName}: 🕳️ <b>Hole in Sock!</b> (Safe! No items).`;
+                    msgBox.innerHTML = `${pName}: 🕳️ <b>${data.name}!</b> (Safe! No items).`;
                 }
-             } else if (data.name === "Snowstorm") {
+             } else if (data.name === "Snowstorm" || data.name === "Back to Center") {
                  msgBox.innerHTML = `${pName}: 🌀 <b>Snowstorm!</b> Back to Center!`;
                  moveToken(currentPlayerId, 500, 500, false); 
-             } else if (data.name === "Snowman") {
-                 msgBox.innerHTML = `${pName}: ⛄ <b>Snowman!</b> You are Frozen next turn!`;
+             } else if (data.name === "Snowman" || data.name === "Miss a Turn") {
+                 msgBox.innerHTML = `${pName}: ⛄ <b>${data.name}!</b> Frozen next turn!`;
                  players[currentPlayerId].isSkipped = true;
+             } else if (data.name === "Move Back") {
+                 msgBox.innerHTML = `${pName}: 🔙 <b>Move Back</b> 1 space!`;
              }
              msgBox.style.borderLeftColor = "#546E7A";
              return;
         }
 
-        // 2. 處理獎勵
         if (data.type === 'bonus') {
             if (data.name === "Candy Cane") {
                 msgBox.innerHTML = `${pName}: 🍬 <b>Candy Cane!</b> Move 1 space forward.`;
-            } else if (data.name === "Gingerbread") {
-                msgBox.innerHTML = `${pName}: 🍪 <b>Gingerbread!</b> Move 2 spaces forward.`;
+            } else if (data.name === "Gingerbread" || data.name === "Move Ahead 2") {
+                msgBox.innerHTML = `${pName}: 🍪 <b>${data.name}!</b> Move 2 spaces.`;
             } else if (data.name === "Stockings") {
                 msgBox.innerHTML = `${pName}: 🧦 <b>Stockings!</b> Lucky! Roll Again!`;
+            } else if (data.name === "Star") {
+                msgBox.innerHTML = `${pName}: ⭐ <b>Star!</b> Super Bonus!`;
             }
             msgBox.style.borderLeftColor = "#E91E63";
             return;
         }
         
-        // 3. 處理裝飾 (安全)
         if (data.type === 'deco') {
             msgBox.innerHTML = `${pName}: 🎄 <b>${data.name}</b>. Just relaxing.`;
             msgBox.style.borderLeftColor = "#8BC34A";
             return;
         }
 
-        // 4. 處理裝備收集 (更新文字為團隊)
         if (data.type === 'gear') {
             if (!collectedItems.has(data.name)) {
                 collectedItems.add(data.name);
@@ -672,7 +746,7 @@
                     msgBox.style.background = "#FFD700";
                 }
             } else {
-                msgBox.innerHTML = `${pName}: 👍 The Team already has <b>${data.name}</b>.`; 
+                msgBox.innerHTML = `${pName}: 👍 Team already has <b>${data.name}</b>.`; 
                 msgBox.style.borderLeftColor = "#81C784";
             }
             return;
@@ -680,7 +754,8 @@
     }
 
     function updateVisuals(name, isVisible) {
-        const badge = document.getElementById(`badge-${name}`);
+        const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+        const badge = document.getElementById(`badge-${formattedName}`);
         if (badge) isVisible ? badge.classList.add('active') : badge.classList.remove('active');
     }
 </script>
