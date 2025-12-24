@@ -1,0 +1,38 @@
+# 外圈 (O1:12點鐘方向, 順時針)
+O1:Hat
+O2:Coat
+O3:Pants
+O4:Hole in Sock
+O5:Mittens
+O6:Wreath
+O7:Belt
+O8:Snowstorm
+O9:Sleigh
+O10:Candy Cane
+O11:Boots
+O12:Gingerbread
+O13:Presents
+O14:Reindeer
+O15:Stockings
+O16:Snowstorm
+
+# 內圈分支 (1:外層, 2:中層, 3:內層)
+# 右上 (Top-Right)
+TR1:Wreath
+TR2:Candy Cane
+TR3:Sleigh
+
+# 右下 (Bottom-Right)
+BR1:Reindeer
+BR2:Hole in Sock
+BR3:Boots
+
+# 左下 (Bottom-Left)
+BL1:Stockings
+BL2:Pants
+BL3:Mittens
+
+# 左上 (Top-Left)
+TL1:Presents
+TL2:Coat
+TL3:Snowman
