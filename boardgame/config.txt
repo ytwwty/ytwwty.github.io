@@ -33,6 +33,6 @@ BL2:Pants
 BL3:Mittens
 
 # 左上 (Top-Left)
-TL1:Presents
-TL2:Coat
-TL3:Snowman
+TL1:Coat
+TL2:Snowman
+TL3:Belt
