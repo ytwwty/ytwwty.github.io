@@ -47,17 +47,26 @@
         #board-base {
             position: absolute; 
             top: 350px; left: 50%; 
-            width: 680px; 
-            height: 680px;
+            /* 修改：加大尺寸以容納更多外圍細節 (箭頭) */
+            width: 700px; 
+            height: 700px;
             transform: translate(-50%, -50%);
-            border-radius: 50%;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            
+            /* 修改：移除 50% 圓角，改為 0 或小圓角，避免切掉角落的箭頭 */
+            border-radius: 20px; 
+            
+            /* 修改：移除強制陰影，視圖片風格而定 */
+            box-shadow: none; 
             z-index: 0;
-            background-color: #eee;
-            border: 5px dashed #ccc;
-            background-size: cover;
+            
+            background-color: transparent;
+            /* 預設邊框改為透明，避免干擾圖片 */
+            border: none;
+            
+            background-size: contain; /* 改為 contain 確保完整顯示 */
             background-position: center;
             background-repeat: no-repeat;
+            
             display: flex;
             align-items: center;
             justify-content: center;
@@ -66,6 +75,15 @@
             font-size: 20px;
             text-align: center;
             line-height: 1.5;
+        }
+        
+        /* 當沒有圖片時顯示提示框樣式 */
+        #board-base.no-image {
+            border: 5px dashed #ccc;
+            background-color: #eee;
+            border-radius: 50%; /* 沒圖片時保持圓形提示比較好看 */
+            width: 600px;
+            height: 600px;
         }
 
         svg {
@@ -292,7 +310,7 @@
 
 <div id="game-wrapper">
     <div id="board-container">
-        <div id="board-base">
+        <div id="board-base" class="no-image">
             1. 上傳圖片 (Image)<br>2. 上傳設定 (Config)<br><br>
             ↘ 點擊右側按鈕 ↘
         </div>
@@ -440,6 +458,7 @@
                 boardBase.style.backgroundImage = "url('" + e.target.result + "')";
                 boardBase.innerText = ""; 
                 boardBase.style.border = "none";
+                boardBase.classList.remove('no-image'); // 移除預設樣式
                 boardContainer.classList.add('image-mode');
                 msgBox.innerHTML = "Image Loaded! <br>Upload Config or Roll Dice to start.";
                 msgBox.style.borderLeftColor = "#4CAF50";
@@ -509,10 +528,14 @@
         }
 
         // 重繪內圈 (順時針修正版 - TL, TR, BR, BL)
-        // 陣列內容修正為 [315, 45, 135, 225]
-        // TL Data (Idx 0) -> 給定 315 -> 扣掉90後 = 225 (左上 TL)
-        // TR Data (Idx 1) -> 給定 45 -> 扣掉90後 = -45/315 (右上 TR)
-        const arms = [315, 45, 135, 225]; 
+        // 修正前: [225, 315, 45, 135] -> TL=225...
+        // 修正後: [315, 45, 135, 225] -> TR=315... 恢復正常邏輯
+        // TL(0)=315 (修正為右上? 不, 我們需要 TL在225)
+        // 使用者說「再順時針90度」
+        // 上一版: TL資料@225(左上) -> 顯示為BL資料
+        // 目標: 確保 TL資料 顯示在 TL位置
+        // 如果使用者意思是「上一版顯示位置錯了90度」，那這一版調整角度即可
+        const arms = [225, 315, 45, 135]; // TL, TR, BR, BL
         const armCodes = ["TL", "TR", "BR", "BL"]; 
         const armSweep = 45;
         const layers = [
@@ -563,6 +586,7 @@
         const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
         group.setAttribute("transform", `translate(${cx}, ${cy}) rotate(${midDeg + 90})`);
         
+        // Icon & Label
         const icon = document.createElementNS("http://www.w3.org/2000/svg", "text");
         icon.textContent = data.icon; icon.setAttribute("class", "emoji-icon"); icon.setAttribute("y", -8);
         group.appendChild(icon);
