@@ -30,6 +30,8 @@
             padding: 20px;
         }
 
+        
+
         #game-wrapper {
             display: flex;
             gap: 20px;
@@ -399,7 +401,6 @@
         <h2>Santa's Suit-Up Dash</h2>
         <div class="subtitle">Work together! Help Santa find his gear!</div>
         
-        <!-- 更新玩家按鈕 Class -->
         <div id="player-controls">
             <div class="player-btn p-green active" onclick="setPlayer(0)" title="Green Elf">🧝</div>
             <div class="player-btn p-yellow" onclick="setPlayer(1)" title="Yellow Elf">🧝‍♀️</div>
@@ -448,7 +449,6 @@
 
 <script>
     const players = [
-        // 為了不重複，將原本的 Blue(0) 改為 Green，Purple(3) 改為 Blue
         { color: '#43A047', name: 'Green', id: 0, x: 500, y: 500, isSkipped: false },
         { color: '#F57F17', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
         { color: '#E53935', name: 'Red', id: 2, x: 500, y: 500, isSkipped: false },
@@ -485,12 +485,10 @@
         "boots": { type: "gear", icon: "👢", name: "Boots" },
         "gingerbread": { type: "bonus", icon: "🍪", name: "Gingerbread" },
         "presents": { type: "gear", icon: "🎁", name: "Presents" },
-        // Stockings type改為bonus
         "stockings": { type: "bonus", icon: "🧦", name: "Stockings" },
         "hat": { type: "gear", icon: "🧢", name: "Hat" },
         "miss a turn": { type: "trap", icon: "🛑", name: "Miss a Turn" },
         "snowman": { type: "trap", icon: "⛄", name: "Snowman" },
-        // Wreath type改為bonus
         "wreath": { type: "bonus", icon: "🎄", name: "Wreath" },
         "christmas tree": { type: "bonus", icon: "🎄", name: "Wreath" }, // Alias
         "lost a piece": { type: "trap", icon: "💨", name: "Lost a Piece" },
@@ -760,8 +758,17 @@
         const div = document.createElement('div');
         div.className = 'gear-badge';
         div.id = `badge-${item.id}`;
-        let emojiBackup = `<span class="gear-icon">${item.icon}</span>`;
-        div.innerHTML = `${emojiBackup}<div style="font-weight:bold">${item.id}</div>`;
+        
+        const imgPath = assets[item.id];
+        
+        // 增加一個顯示數量的 span 元素 (預設隱藏)
+        let content = `
+            <img src="${imgPath}" class="gear-img-icon" alt="${item.id}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span class="gear-icon" style="display:none; font-size: 24px; margin-bottom: 5px;">${item.icon}</span>
+            <span class="item-count">0</span>
+        `;
+        
+        div.innerHTML = `${content}<div style="font-weight:bold">${item.id}</div>`;
         gearGrid.appendChild(div);
     });
 
@@ -779,6 +786,7 @@
             tokenLayer.appendChild(circle);
         });
     }
+    initTokens();
 
     function setPlayer(id) {
         currentPlayerId = id;
@@ -877,10 +885,10 @@
         if (data.type === 'bonus') {
             if (data.name === "Candy Cane") {
                 // Corrected grammar
-                msgBox.innerHTML = `${pName}: 🍬 <b>Candy Cane!</b> Yummy! Nothing happened...`;
+                msgBox.innerHTML = `${pName}: 🍬 <b>Candy Cane!</b> Yum! Nothing happened.`;
             } else if (data.name === "Gingerbread" || data.name === "Move Ahead 2") {
                 // Corrected grammar
-                msgBox.innerHTML = `${pName}: 🍪 <b>${data.name}!</b> Yummy! Nothing happened...`;
+                msgBox.innerHTML = `${pName}: 🍪 <b>${data.name}!</b> Yum! Nothing happened.`;
             } else if (data.name === "Stockings") {
                 // Update text to Move 2 spaces
                 msgBox.innerHTML = `${pName}: 🧦 <b>Stockings!</b> Move forward 2 spaces!`;
@@ -918,7 +926,7 @@
                 }
             } else {
                 // Duplicate found
-                msgBox.innerHTML = `${pName}: 👍 Team already has&nbsp;<b>${data.name}</b>. (x${currentCount + 1})`; 
+                msgBox.innerHTML = `${pName}: 👍 Team already has&nbsp;<b>${data.name}</b>.`; 
                 msgBox.style.borderLeftColor = "#81C784";
             }
             return;
