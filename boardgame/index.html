@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,8 +53,12 @@
             border-radius: 20px; 
             box-shadow: none; 
             z-index: 0;
+            
+            /* --- Default Background Setting --- */
+            background-image: url('img/background/SantaWheelArrow.png');
             background-color: transparent;
             border: none;
+            
             background-size: contain; 
             background-position: center;
             background-repeat: no-repeat;
@@ -68,14 +72,6 @@
             line-height: 1.5;
         }
         
-        #board-base.no-image {
-            border: 5px dashed #ccc;
-            background-color: #eee;
-            border-radius: 50%; 
-            width: 600px;
-            height: 600px;
-        }
-
         svg {
             width: 700px; height: 700px;
             position: relative;
@@ -229,15 +225,10 @@
         /* 各部位調整 */
         #layer-Pants { width: 100px; bottom: 55px; z-index: 5; }
         #layer-Boots { width: 110px; bottom: 20px; z-index: 6; }
-        
-        /* 調整 1 & 4: 衣服和皮帶變小並下移 */
         #layer-Coat { width: 100px; bottom: 100px; z-index: 7; } 
         #layer-Belt { width: 90px; bottom: 95px; z-index: 8; } 
-        
-        /* 調整: 帽子縮小並往右、往下移一點 */
         #layer-Hat { width: 90px; top: 45px; margin-left: 5px; z-index: 9; }
         
-        /* 調整 2: 手套改到跟衣服同高但靠右 */
         #layer-Mittens { 
             width: 70px; 
             top: auto; 
@@ -248,33 +239,27 @@
             z-index: 12; 
         }
         
-        /* 調整 3: 雪橇與馴鹿位置對調 */
-        /* 雪橇在左，縮小並下移到boots下方附近 */
         #layer-Sleigh { width: 100px; bottom: 0px; left: 10px; right: auto; z-index: 10; transform: translateX(0); }
-        /* 馴鹿在右 - 修改位置到左移一點 */
         #layer-Reindeer { width: 100px; bottom: 10px; right: 0px; left: auto; z-index: 10; transform: translateX(0); }
         
         #layer-Presents { 
             width: 70px; 
             top: auto; 
             left: 20px; 
-            bottom: 120px; /* 修改高度與mittens一致 */
+            bottom: 120px;
             transform: none;
             z-index: 12; 
         }
 
-        /* 顯示/隱藏動畫類別 */
         .hidden-gear { opacity: 0; transform: translateX(-50%) scale(0.5); }
         .visible-gear { opacity: 1; transform: translateX(-50%) scale(1); }
         
-        /* 側邊物品的特殊隱藏位置 (不置中) - 配合新位置調整隱藏方向 */
-        #layer-Sleigh.hidden-gear { transform: translateX(-50px) scale(0.5); opacity: 0; } /* 往左隱藏 */
+        #layer-Sleigh.hidden-gear { transform: translateX(-50px) scale(0.5); opacity: 0; }
         #layer-Sleigh.visible-gear { transform: translateX(0) scale(1); opacity: 1; }
         
-        #layer-Reindeer.hidden-gear { transform: translateX(50px) scale(0.5); opacity: 0; } /* 往右隱藏 */
+        #layer-Reindeer.hidden-gear { transform: translateX(50px) scale(0.5); opacity: 0; }
         #layer-Reindeer.visible-gear { transform: translateX(0) scale(1); opacity: 1; }
 
-        /* 特殊位置物品的顯示/隱藏覆寫 */
         #layer-Mittens.visible-gear, #layer-Presents.visible-gear {
             transform: scale(1);
             opacity: 1;
@@ -308,8 +293,6 @@
         .btn-rules:hover { background: #B71C1C; }
         .btn-config { background: #7B1FA2; }
         .btn-config:hover { background: #4A148C; }
-        .btn-download { background: #00897B; }
-        .btn-download:hover { background: #00695C; }
         
         #toggle-ids {
             font-size: 12px; margin-top: 5px; cursor: pointer; color: #666; text-decoration: underline;
@@ -359,16 +342,14 @@
 
 <div id="game-wrapper">
     <div id="board-container">
-        <div id="board-base" class="no-image">
-            1. 上傳圖片 (Image)<br>2. 上傳設定 (Config)<br><br>
-            ↘ 點擊右側按鈕 ↘
-        </div>
+        <!-- Default BG set in CSS, cleared text -->
+        <div id="board-base"></div>
         <svg id="game-board" viewBox="0 0 1000 1000">
             <g id="outer-layer-group"></g>
             <g id="inner-layer-group"></g>
             <g id="token-layer"></g>
         </svg>
-        <div id="toggle-ids" onclick="toggleDebugIds()">[👁️ 顯示/隱藏 格子編號]</div>
+        <div id="toggle-ids" onclick="toggleDebugIds()">[👁️ Show/Hide Grid IDs]</div>
     </div>
 
     <div id="dashboard">
@@ -387,7 +368,7 @@
             <div id="dice-display">-</div>
         </div>
 
-        <div id="message-box">請上傳您的轉盤圖片！<br>Please upload board image.</div>
+        <div id="message-box">Please upload board image or use default.</div>
 
         <div id="santa-stage">
             <!-- 基底圖片 -->
@@ -404,13 +385,12 @@
         
         <div class="btn-group">
             <input type="file" id="board-upload" accept="image/*" style="display:none" onchange="loadBoardImage(this)">
-            <button class="btn" onclick="document.getElementById('board-upload').click()" style="background:#E64A19;">🖼️ 上傳底圖</button>
+            <button class="btn" onclick="document.getElementById('board-upload').click()" style="background:#E64A19;">🖼️ Upload Background</button>
             
             <input type="file" id="config-upload" accept=".txt,.json" style="display:none" onchange="loadConfig(this)">
-            <button class="btn btn-config" onclick="document.getElementById('config-upload').click()">📄 上傳設定</button>
+            <button class="btn btn-config" onclick="document.getElementById('config-upload').click()">📄 Upload Config</button>
             
             <button class="btn btn-rules" onclick="toggleRules()">📜 Rules</button>
-            <button class="btn btn-download" onclick="downloadGame()">📥 下載</button>
         </div>
     </div>
 </div>
@@ -421,15 +401,15 @@
         <h3 class="rules-title">🎄 Cooperative Rules</h3>
         <div class="rules-columns">
             <div class="rule-block">
-                <span class="rule-num">1.</span> <span class="rule-head">Mission (目標)</span>
+                <span class="rule-num">1.</span> <span class="rule-head">Mission</span>
                 <div class="rule-text"><b>Cooperate!</b> The 4 Elves must work together to collect all 9 items. You are a team!</div>
             </div>
             <div class="rule-block">
-                <span class="rule-num">2.</span> <span class="rule-head">Movement (移動)</span>
+                <span class="rule-num">2.</span> <span class="rule-head">Movement</span>
                 <div class="rule-text">Roll the dice 🎲. Start from the <b>CENTER</b>! Choose one of the 4 paths to begin.</div>
             </div>
             <div class="rule-block">
-                <span class="rule-num">3.</span> <span class="rule-head">Traps (陷阱)</span>
+                <span class="rule-num">3.</span> <span class="rule-head">Traps</span>
                 <div class="rule-text">
                     <b>Hole in Sock</b>: Team loses an item.<br>
                     <b>Snowman</b>: Freeze! Miss a turn.<br>
@@ -437,7 +417,7 @@
                 </div>
             </div>
             <div class="rule-block">
-                <span class="rule-num">4.</span> <span class="rule-head">Winning (勝利)</span>
+                <span class="rule-num">4.</span> <span class="rule-head">Winning</span>
                 <div class="rule-text">When the team lights up all 9 items, Santa is ready! Everyone wins together! 🎉</div>
             </div>
         </div>
@@ -541,7 +521,31 @@
             santaStage.appendChild(img);
         });
     }
-    initStage(); // 呼叫初始化
+    
+    // Initialize on load with default settings
+    window.onload = function() {
+        initStage();
+        
+        // Try fetch default config
+        fetch('config.txt')
+            .then(response => {
+                if (!response.ok) throw new Error("No config file");
+                return response.text();
+            })
+            .then(text => {
+                parseConfig(text);
+                refreshBoard();
+                console.log("Default config loaded");
+            })
+            .catch(e => console.log("Using hardcoded defaults"));
+        
+        refreshBoard();
+        
+        // Set default image mode since we have a default image
+        boardContainer.classList.add('image-mode');
+        msgBox.innerHTML = "Ready to play! Roll the dice.";
+        msgBox.style.borderLeftColor = "#4CAF50";
+    };
 
     function loadBoardImage(input) {
         if (input.files && input.files[0]) {
@@ -697,19 +701,6 @@
         boardContainer.classList.toggle('show-ids');
     }
 
-    function downloadGame() {
-        const htmlContent = document.documentElement.outerHTML;
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'santas_adventure_game.html';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
     function toggleRules() {
         rulesModal.style.display = (rulesModal.style.display === 'flex') ? 'none' : 'flex';
     }
@@ -735,8 +726,7 @@
         gearGrid.appendChild(div);
     });
 
-    refreshBoard();
-
+    // Game Logic
     function initTokens() {
         players.forEach(p => {
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
