@@ -47,26 +47,17 @@
         #board-base {
             position: absolute; 
             top: 350px; left: 50%; 
-            /* 修改：加大尺寸以容納更多外圍細節 (箭頭) */
             width: 700px; 
             height: 700px;
             transform: translate(-50%, -50%);
-            
-            /* 修改：移除 50% 圓角，改為 0 或小圓角，避免切掉角落的箭頭 */
             border-radius: 20px; 
-            
-            /* 修改：移除強制陰影，視圖片風格而定 */
             box-shadow: none; 
             z-index: 0;
-            
             background-color: transparent;
-            /* 預設邊框改為透明，避免干擾圖片 */
             border: none;
-            
-            background-size: contain; /* 改為 contain 確保完整顯示 */
+            background-size: contain; 
             background-position: center;
             background-repeat: no-repeat;
-            
             display: flex;
             align-items: center;
             justify-content: center;
@@ -77,11 +68,10 @@
             line-height: 1.5;
         }
         
-        /* 當沒有圖片時顯示提示框樣式 */
         #board-base.no-image {
             border: 5px dashed #ccc;
             background-color: #eee;
-            border-radius: 50%; /* 沒圖片時保持圓形提示比較好看 */
+            border-radius: 50%; 
             width: 600px;
             height: 600px;
         }
@@ -113,13 +103,11 @@
             pointer-events: none;
         }
         
-        /* 圖片模式下，預設隱藏文字，除非開啟 Debug ID */
         .image-mode .emoji-icon, 
         .image-mode .label-text {
             display: none !important;
         }
 
-        /* Debug ID 顯示樣式 */
         .debug-id {
             display: none;
             font-size: 16px;
@@ -217,6 +205,7 @@
             display: flex; align-items: center; justify-content: center; text-align: center;
         }
 
+        /* --- 🎅 聖誕老人變裝區 --- */
         #santa-stage {
             width: 280px; height: 380px;
             position: relative; background: #E1F5FE; 
@@ -224,16 +213,75 @@
             box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
             margin-bottom: 20px; overflow: hidden;
         }
-        .santa-layer { position: absolute; left: 50%; transform: translateX(-50%); transition: all 0.5s; pointer-events: none; }
+        
+        /* 圖片圖層的通用樣式 */
+        .santa-layer { 
+            position: absolute; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            transition: all 0.5s; 
+            pointer-events: none; 
+        }
+        
+        /* 基底位置 */
         .base-body { width: 180px; bottom: 20px; z-index: 1; }
         
+        /* 各部位調整 */
+        #layer-Pants { width: 100px; bottom: 55px; z-index: 5; }
+        #layer-Boots { width: 110px; bottom: 20px; z-index: 6; }
+        
+        /* 調整 1 & 4: 衣服和皮帶變小 */
+        #layer-Coat { width: 100px; bottom: 115px; z-index: 7; }
+        #layer-Belt { width: 100px; bottom: 125px; z-index: 8; }
+        
+        #layer-Hat { width: 100px; top: 40px; z-index: 9; }
+        
+        /* 調整 2: 手套改到跟衣服同高但靠右 */
+        #layer-Mittens { 
+            width: 70px; 
+            top: auto; 
+            bottom: 120px; /* 約與衣服同高 */
+            right: 20px; 
+            left: auto;
+            transform: none;
+            z-index: 12; 
+        }
+        
+        /* 調整 3: 雪橇與馴鹿位置對調 */
+        /* 雪橇在左 */
+        #layer-Sleigh { width: 120px; bottom: 10px; left: 10px; right: auto; z-index: 10; transform: translateX(0); }
+        /* 馴鹿在右 */
+        #layer-Reindeer { width: 100px; bottom: 10px; right: -20px; left: auto; z-index: 10; transform: translateX(0); }
+        
+        #layer-Presents { 
+            width: 70px; 
+            top: 20px; 
+            left: 20px; 
+            bottom: auto;
+            transform: none;
+            z-index: 12; 
+        }
+
+        /* 顯示/隱藏動畫類別 */
         .hidden-gear { opacity: 0; transform: translateX(-50%) scale(0.5); }
         .visible-gear { opacity: 1; transform: translateX(-50%) scale(1); }
         
-        #layer-Mitten-L.hidden-gear { transform: rotate(-20deg) scale(0.5); opacity: 0; }
-        #layer-Mitten-L.visible-gear { transform: rotate(-20deg) scale(1); opacity: 1; }
-        #layer-Mitten-R.hidden-gear { transform: scaleX(-1) rotate(-20deg) scale(0.5); opacity: 0; }
-        #layer-Mitten-R.visible-gear { transform: scaleX(-1) rotate(-20deg) scale(1); opacity: 1; }
+        /* 側邊物品的特殊隱藏位置 (不置中) - 配合新位置調整隱藏方向 */
+        #layer-Sleigh.hidden-gear { transform: translateX(-50px) scale(0.5); opacity: 0; } /* 往左隱藏 */
+        #layer-Sleigh.visible-gear { transform: translateX(0) scale(1); opacity: 1; }
+        
+        #layer-Reindeer.hidden-gear { transform: translateX(50px) scale(0.5); opacity: 0; } /* 往右隱藏 */
+        #layer-Reindeer.visible-gear { transform: translateX(0) scale(1); opacity: 1; }
+
+        /* 特殊位置物品的顯示/隱藏覆寫 */
+        #layer-Mittens.visible-gear, #layer-Presents.visible-gear {
+            transform: scale(1);
+            opacity: 1;
+        }
+        #layer-Mittens.hidden-gear, #layer-Presents.hidden-gear {
+            transform: scale(0.5);
+            opacity: 0;
+        }
 
         #gear-grid { 
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
@@ -341,7 +389,11 @@
         <div id="message-box">請上傳您的轉盤圖片！<br>Please upload board image.</div>
 
         <div id="santa-stage">
-            <div id="backup-santa" class="santa-layer base-body" style="display:flex; width:100%; height:100%; flex-direction:column; justify-content:center; align-items:center; bottom:0;">
+            <!-- 基底圖片 -->
+            <img id="base-santa-img" class="santa-layer base-body" alt="Santa Base" onerror="this.style.display='none'; document.getElementById('backup-santa').style.display='flex';">
+            
+            <!-- 備用 Emoji -->
+            <div id="backup-santa" class="santa-layer base-body" style="display:none; width:100%; height:100%; flex-direction:column; justify-content:center; align-items:center; bottom:0;">
                 <div style="font-size:80px">🎅</div>
                 <div style="font-size:50px; margin-top:-20px">👕</div>
             </div>
@@ -401,6 +453,20 @@
     let currentPlayerId = 0;
     let collectedItems = new Set();
 
+    // 更新 Assets 路徑
+    const assets = {
+        "Hat": "img/collection/hat.png",
+        "Coat": "img/collection/coat.png",
+        "Belt": "img/collection/belt.png",
+        "Pants": "img/collection/pants.png",
+        "Boots": "img/collection/boots.png",
+        "Mittens": "img/collection/mittens.png",
+        "Sleigh": "img/collection/sleigh.png",
+        "Reindeer": "img/collection/reindeer.png",
+        "Presents": "img/collection/presents.png",
+        "BaseSanta": "img/collection/base_santa.png"
+    };
+
     const itemDB = {
         "coat": { type: "gear", icon: "🧥", name: "Coat" },
         "pants": { type: "gear", icon: "👖", name: "Pants" },
@@ -427,13 +493,11 @@
         "star": { type: "bonus", icon: "⭐", name: "Star" }
     };
 
-    // 預設資料 (對應 Mapping V2)
     let outerDataMap = [
         "Coat", "Pants", "Hole in sock", "Mittens", "Reindeer", "Belt", "Snowstorm", "Sleigh",
         "Candy cane", "Boots", "Gingerbread", "Presents", "Stockings", "Snowstorm", "Snowstorm", "Hat"
     ];
 
-    // 內圈分支: [TL, TR, BR, BL] (由外向內：1->2->3)
     let innerDataMap = [
         ["Presents", "Coat", "Snowman"],           // TL (Index 0)
         ["Wreath", "Candy cane", "Sleigh"],       // TR (Index 1)
@@ -449,6 +513,34 @@
     const diceDisplay = document.getElementById('dice-display');
     const diceBtn = document.getElementById('dice-btn');
     const boardContainer = document.getElementById('board-container');
+    const santaStage = document.getElementById('santa-stage');
+
+    // 恢復 initStage 以生成圖片標籤
+    function initStage() {
+        const baseImg = document.getElementById('base-santa-img');
+        baseImg.src = assets["BaseSanta"];
+
+        const gearOrder = ["Pants", "Boots", "Coat", "Belt", "Hat", "Mittens", "Sleigh", "Reindeer", "Presents"];
+        
+        gearOrder.forEach(item => {
+            const img = document.createElement('img');
+            img.src = assets[item]; // 使用 assets 內的 img/collection/ 路徑
+            img.id = `layer-${item}`;
+            
+            // 設定 class
+            if(["Sleigh", "Reindeer"].includes(item)) { // Presents 改為右上角顯示，不視為側邊裝飾
+                img.className = "santa-layer hidden-gear";
+            } else {
+                img.className = "santa-layer hidden-gear";
+            }
+            
+            // 預設隱藏，載入失敗時(本機測試無圖)也會保持隱藏
+            img.onerror = function() { this.style.display = 'none'; };
+            
+            santaStage.appendChild(img);
+        });
+    }
+    initStage(); // 呼叫初始化
 
     function loadBoardImage(input) {
         if (input.files && input.files[0]) {
@@ -458,7 +550,7 @@
                 boardBase.style.backgroundImage = "url('" + e.target.result + "')";
                 boardBase.innerText = ""; 
                 boardBase.style.border = "none";
-                boardBase.classList.remove('no-image'); // 移除預設樣式
+                boardBase.classList.remove('no-image'); 
                 boardContainer.classList.add('image-mode');
                 msgBox.innerHTML = "Image Loaded! <br>Upload Config or Roll Dice to start.";
                 msgBox.style.borderLeftColor = "#4CAF50";
@@ -527,15 +619,8 @@
             drawCell(i * (360/16) - 90, 360/16, 450, 360, data, outerGroup, `O${i+1}`);
         }
 
-        // 重繪內圈 (順時針修正版 - TL, TR, BR, BL)
-        // 修正前: [225, 315, 45, 135] -> TL=225...
-        // 修正後: [315, 45, 135, 225] -> TR=315... 恢復正常邏輯
-        // TL(0)=315 (修正為右上? 不, 我們需要 TL在225)
-        // 使用者說「再順時針90度」
-        // 上一版: TL資料@225(左上) -> 顯示為BL資料
-        // 目標: 確保 TL資料 顯示在 TL位置
-        // 如果使用者意思是「上一版顯示位置錯了90度」，那這一版調整角度即可
-        const arms = [225, 315, 45, 135]; // TL, TR, BR, BL
+        // 順時針修正版
+        const arms = [315, 45, 135, 225]; 
         const armCodes = ["TL", "TR", "BR", "BL"]; 
         const armSweep = 45;
         const layers = [
@@ -778,9 +863,31 @@
     }
 
     function updateVisuals(name, isVisible) {
+        // 1. Update Grid Badge
         const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
         const badge = document.getElementById(`badge-${formattedName}`);
         if (badge) isVisible ? badge.classList.add('active') : badge.classList.remove('active');
+
+        // 2. Update Santa Image
+        const layerId = `layer-${formattedName}`;
+        const imgLayer = document.getElementById(layerId);
+        
+        if (imgLayer) {
+            if (isVisible) {
+                imgLayer.classList.remove('hidden-gear');
+                imgLayer.classList.add('visible-gear');
+                
+                // 確保圖片顯示 (如果之前被 onerror 隱藏)
+                if (imgLayer.style.display === 'none') {
+                    // 如果是本地圖片，這行其實沒用，因為瀏覽器已經認定載入失敗
+                    // 但如果是之後動態換圖片，這行會有用
+                    imgLayer.style.display = 'block'; 
+                }
+            } else {
+                imgLayer.classList.remove('visible-gear');
+                imgLayer.classList.add('hidden-gear');
+            }
+        }
     }
 </script>
 
