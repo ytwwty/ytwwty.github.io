@@ -230,17 +230,18 @@
         #layer-Pants { width: 100px; bottom: 55px; z-index: 5; }
         #layer-Boots { width: 110px; bottom: 20px; z-index: 6; }
         
-        /* 調整 1 & 4: 衣服和皮帶變小 */
-        #layer-Coat { width: 100px; bottom: 115px; z-index: 7; }
-        #layer-Belt { width: 100px; bottom: 125px; z-index: 8; }
+        /* 調整 1 & 4: 衣服和皮帶變小並下移 */
+        #layer-Coat { width: 100px; bottom: 100px; z-index: 7; } 
+        #layer-Belt { width: 90px; bottom: 95px; z-index: 8; } 
         
-        #layer-Hat { width: 100px; top: 40px; z-index: 9; }
+        /* 調整: 帽子縮小並往右、往下移一點 */
+        #layer-Hat { width: 90px; top: 45px; margin-left: 5px; z-index: 9; }
         
         /* 調整 2: 手套改到跟衣服同高但靠右 */
         #layer-Mittens { 
             width: 70px; 
             top: auto; 
-            bottom: 120px; /* 約與衣服同高 */
+            bottom: 120px; 
             right: 20px; 
             left: auto;
             transform: none;
@@ -248,16 +249,16 @@
         }
         
         /* 調整 3: 雪橇與馴鹿位置對調 */
-        /* 雪橇在左 */
-        #layer-Sleigh { width: 120px; bottom: 10px; left: 10px; right: auto; z-index: 10; transform: translateX(0); }
-        /* 馴鹿在右 */
-        #layer-Reindeer { width: 100px; bottom: 10px; right: -20px; left: auto; z-index: 10; transform: translateX(0); }
+        /* 雪橇在左，縮小並下移到boots下方附近 */
+        #layer-Sleigh { width: 100px; bottom: 0px; left: 10px; right: auto; z-index: 10; transform: translateX(0); }
+        /* 馴鹿在右 - 修改位置到左移一點 */
+        #layer-Reindeer { width: 100px; bottom: 10px; right: 0px; left: auto; z-index: 10; transform: translateX(0); }
         
         #layer-Presents { 
             width: 70px; 
-            top: 20px; 
+            top: auto; 
             left: 20px; 
-            bottom: auto;
+            bottom: 120px; /* 修改高度與mittens一致 */
             transform: none;
             z-index: 12; 
         }
