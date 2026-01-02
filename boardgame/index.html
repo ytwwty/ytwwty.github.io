@@ -172,10 +172,11 @@
         .player-btn.active { border-color: #333; transform: scale(1.2); z-index: 10; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
         .player-btn.frozen { opacity: 0.5; cursor: not-allowed; border-color: #00BCD4; background: #E0F7FA; }
         
-        .p-blue { background: #42A5F5; color: white; }
-        .p-yellow { background: #F57F17; color: white; }
-        .p-pink { background: #EC407A; color: white; }
-        .p-purple { background: #AB47BC; color: white; }
+        /* 更新玩家顏色樣式 */
+        .p-green { background: #43A047; color: white; } /* Player 0 */
+        .p-yellow { background: #F57F17; color: white; } /* Player 1 */
+        .p-red { background: #E53935; color: white; } /* Player 2 */
+        .p-blue { background: #1E88E5; color: white; } /* Player 3 */
 
         #dice-area { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
         #dice-btn {
@@ -391,11 +392,12 @@
         <h2>Santa's Suit-Up Dash</h2>
         <div class="subtitle">Work together! Help Santa find his gear!</div>
         
+        <!-- 更新玩家按鈕 Class -->
         <div id="player-controls">
-            <div class="player-btn p-blue active" onclick="setPlayer(0)" title="Blue Elf">🧝</div>
+            <div class="player-btn p-green active" onclick="setPlayer(0)" title="Green Elf">🧝</div>
             <div class="player-btn p-yellow" onclick="setPlayer(1)" title="Yellow Elf">🧝‍♀️</div>
-            <div class="player-btn p-pink" onclick="setPlayer(2)" title="Pink Elf">🧝</div>
-            <div class="player-btn p-purple" onclick="setPlayer(3)" title="Purple Elf">🧝‍♀️</div>
+            <div class="player-btn p-red" onclick="setPlayer(2)" title="Red Elf">🧝</div>
+            <div class="player-btn p-blue" onclick="setPlayer(3)" title="Blue Elf">🧝‍♀️</div>
         </div>
 
         <div id="dice-area">
@@ -439,10 +441,11 @@
 
 <script>
     const players = [
-        { color: '#42A5F5', name: 'Blue', id: 0, x: 500, y: 500, isSkipped: false },
+        // 為了不重複，將原本的 Blue(0) 改為 Green，Purple(3) 改為 Blue
+        { color: '#43A047', name: 'Green', id: 0, x: 500, y: 500, isSkipped: false },
         { color: '#F57F17', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
-        { color: '#EC407A', name: 'Pink', id: 2, x: 500, y: 500, isSkipped: false },
-        { color: '#AB47BC', name: 'Purple', id: 3, x: 500, y: 500, isSkipped: false }
+        { color: '#E53935', name: 'Red', id: 2, x: 500, y: 500, isSkipped: false },
+        { color: '#1E88E5', name: 'Blue', id: 3, x: 500, y: 500, isSkipped: false }
     ];
     let currentPlayerId = 0;
     // 使用 Map 來記錄每個物品的數量
@@ -475,12 +478,14 @@
         "boots": { type: "gear", icon: "👢", name: "Boots" },
         "gingerbread": { type: "bonus", icon: "🍪", name: "Gingerbread" },
         "presents": { type: "gear", icon: "🎁", name: "Presents" },
+        // Stockings type改為bonus
         "stockings": { type: "bonus", icon: "🧦", name: "Stockings" },
         "hat": { type: "gear", icon: "🧢", name: "Hat" },
         "miss a turn": { type: "trap", icon: "🛑", name: "Miss a Turn" },
         "snowman": { type: "trap", icon: "⛄", name: "Snowman" },
-        "wreath": { type: "deco", icon: "🎄", name: "Wreath" },
-        "christmas tree": { type: "deco", icon: "🎄", name: "Wreath" }, 
+        // Wreath type改為bonus
+        "wreath": { type: "bonus", icon: "🎄", name: "Wreath" },
+        "christmas tree": { type: "bonus", icon: "🎄", name: "Wreath" }, // Alias
         "lost a piece": { type: "trap", icon: "💨", name: "Lost a Piece" },
         "move back 1 space": { type: "trap", icon: "🔙", name: "Move Back" },
         "move ahead 2 spaces": { type: "bonus", icon: "⏩", name: "Move Ahead 2" },
@@ -541,6 +546,7 @@
     // Initialize on load with default settings
     window.onload = function() {
         initStage();
+        initTokens();
         
         // 恢復自動讀取 config.txt
         fetch('config.txt')
@@ -747,17 +753,8 @@
         const div = document.createElement('div');
         div.className = 'gear-badge';
         div.id = `badge-${item.id}`;
-        
-        const imgPath = assets[item.id];
-        
-        // 增加一個顯示數量的 span 元素 (預設隱藏)
-        let content = `
-            <img src="${imgPath}" class="gear-img-icon" alt="${item.id}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-            <span class="gear-icon" style="display:none; font-size: 24px; margin-bottom: 5px;">${item.icon}</span>
-            <span class="item-count">0</span>
-        `;
-        
-        div.innerHTML = `${content}<div style="font-weight:bold">${item.id}</div>`;
+        let emojiBackup = `<span class="gear-icon">${item.icon}</span>`;
+        div.innerHTML = `${emojiBackup}<div style="font-weight:bold">${item.id}</div>`;
         gearGrid.appendChild(div);
     });
 
@@ -770,10 +767,11 @@
             circle.setAttribute("fill", p.color);
             circle.setAttribute("class", "elf-token");
             circle.id = `token-${p.id}`;
+            // Hidden initially
+            circle.style.display = 'none';
             tokenLayer.appendChild(circle);
         });
     }
-    initTokens();
 
     function setPlayer(id) {
         currentPlayerId = id;
@@ -817,6 +815,8 @@
         const offsetX = (playerId % 2 === 0 ? -10 : 10);
         const offsetY = (playerId < 2 ? -10 : 10);
         const token = document.getElementById(`token-${playerId}`);
+        // Make token visible on first move
+        token.style.display = 'block';
         if (isInner) innerGroup.appendChild(token); else tokenLayer.appendChild(token);
         token.setAttribute("cx", x + offsetX);
         token.setAttribute("cy", y + offsetY);
@@ -869,13 +869,19 @@
 
         if (data.type === 'bonus') {
             if (data.name === "Candy Cane") {
-                msgBox.innerHTML = `${pName}: 🍬 <b>Candy Cane!</b> Move 1 space forward.`;
+                // Corrected grammar
+                msgBox.innerHTML = `${pName}: 🍬 <b>Candy Cane!</b> Yummy! Nothing happened...`;
             } else if (data.name === "Gingerbread" || data.name === "Move Ahead 2") {
-                msgBox.innerHTML = `${pName}: 🍪 <b>${data.name}!</b> Move 2 spaces.`;
+                // Corrected grammar
+                msgBox.innerHTML = `${pName}: 🍪 <b>${data.name}!</b> Yummy! Nothing happened...`;
             } else if (data.name === "Stockings") {
-                msgBox.innerHTML = `${pName}: 🧦 <b>Stockings!</b> Lucky! Roll Again!`;
+                // Update text to Move 2 spaces
+                msgBox.innerHTML = `${pName}: 🧦 <b>Stockings!</b> Move forward 2 spaces!`;
             } else if (data.name === "Star") {
                 msgBox.innerHTML = `${pName}: ⭐ <b>Star!</b> Super Bonus!`;
+            } else if (data.name === "Wreath") {
+                // Wreath is now Roll Again
+                msgBox.innerHTML = `${pName}: 🎄 <b>Wreath!</b> Roll Again!`;
             }
             msgBox.style.borderLeftColor = "#E91E63";
             return;
