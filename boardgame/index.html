@@ -179,12 +179,12 @@
         .player-btn.active { border-color: #333; transform: scale(1.2); z-index: 10; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
         .player-btn.frozen { opacity: 0.5; cursor: not-allowed; border-color: #00BCD4; background: #E0F7FA; }
         
-        .p-blue { background: #42A5F5; color: white; }
-        .p-yellow { background: #F57F17; color: white; }
-        .p-pink { background: #EC407A; color: white; }
-        .p-purple { background: #AB47BC; color: white; }
-        .p-green { background: #43A047; color: white; }
-        .p-red { background: #E53935; color: white; }
+        /* 更新玩家顏色樣式 */
+        .p-green { background: #43A047; color: white; } 
+        /* 修改黃色為深金黃色，並使用深色文字增加對比 */
+        .p-yellow { background: #FBC02D; color: #333; } 
+        .p-red { background: #E53935; color: white; } 
+        .p-blue { background: #1E88E5; color: white; } 
 
         #dice-area { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
         #dice-btn {
@@ -443,7 +443,8 @@
 <script>
     const players = [
         { color: '#43A047', name: 'Green', id: 0, x: 500, y: 500, isSkipped: false },
-        { color: '#F57F17', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
+        // 更新黃色玩家顏色為深金黃色
+        { color: '#FBC02D', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
         { color: '#E53935', name: 'Red', id: 2, x: 500, y: 500, isSkipped: false },
         { color: '#1E88E5', name: 'Blue', id: 3, x: 500, y: 500, isSkipped: false }
     ];
