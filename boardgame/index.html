@@ -173,7 +173,6 @@
         .player-btn.frozen { opacity: 0.5; cursor: not-allowed; border-color: #00BCD4; background: #E0F7FA; }
         
         .p-blue { background: #42A5F5; color: white; }
-        /* 修改黃色玩家顏色為深琥珀色，增加對比度 (Dark Amber/Orange) */
         .p-yellow { background: #F57F17; color: white; }
         .p-pink { background: #EC407A; color: white; }
         .p-purple { background: #AB47BC; color: white; }
@@ -279,11 +278,43 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.3s;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 70px; border: 1px solid #eee;
+            
+            /* 新增：相對定位，讓數量標籤可以定位 */
+            position: relative;
+            overflow: visible;
         }
         .gear-badge.active {
             background: linear-gradient(135deg, #66BB6A, #43A047); color: white; 
             transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); border: none;
         }
+        
+        /* 數量標籤樣式 */
+        .item-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #FF5722;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border: 2px solid white;
+            z-index: 5;
+            opacity: 0; /* 預設隱藏 */
+            transition: opacity 0.3s, transform 0.3s;
+            transform: scale(0);
+        }
+        .item-count.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
         .gear-img-icon { width: 35px; height: 35px; object-fit: contain; margin-bottom: 5px; }
         .gear-icon { font-size: 24px; margin-bottom: 5px; }
         
@@ -409,13 +440,13 @@
 <script>
     const players = [
         { color: '#42A5F5', name: 'Blue', id: 0, x: 500, y: 500, isSkipped: false },
-        // 更新黃色玩家顏色代碼: 使用深琥珀色以增加對比度
         { color: '#F57F17', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
         { color: '#EC407A', name: 'Pink', id: 2, x: 500, y: 500, isSkipped: false },
         { color: '#AB47BC', name: 'Purple', id: 3, x: 500, y: 500, isSkipped: false }
     ];
     let currentPlayerId = 0;
-    let collectedItems = new Set();
+    // 使用 Map 來記錄每個物品的數量
+    let collectedItems = new Map();
 
     // 更新 Assets 路徑
     const assets = {
@@ -719,9 +750,11 @@
         
         const imgPath = assets[item.id];
         
+        // 增加一個顯示數量的 span 元素 (預設隱藏)
         let content = `
             <img src="${imgPath}" class="gear-img-icon" alt="${item.id}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <span class="gear-icon" style="display:none; font-size: 24px; margin-bottom: 5px;">${item.icon}</span>
+            <span class="item-count">0</span>
         `;
         
         div.innerHTML = `${content}<div style="font-weight:bold">${item.id}</div>`;
@@ -797,10 +830,26 @@
         if (data.type === 'trap') {
              if (data.name === "Hole in Sock" || data.name === "Lost a Piece") {
                 if (collectedItems.size > 0) {
-                    const itemsArray = Array.from(collectedItems);
-                    const lostItem = itemsArray[Math.floor(Math.random() * itemsArray.length)];
-                    collectedItems.delete(lostItem);
-                    updateVisuals(lostItem, false);
+                    // Logic to find item to lose: prioritize duplicates
+                    let candidates = [];
+                    for (let [key, val] of collectedItems.entries()) {
+                        if (val > 1) candidates.push(key);
+                    }
+                    if (candidates.length === 0) {
+                         candidates = Array.from(collectedItems.keys());
+                    }
+                    
+                    const lostItem = candidates[Math.floor(Math.random() * candidates.length)];
+                    
+                    // Decrease count
+                    const currentCount = collectedItems.get(lostItem);
+                    if (currentCount > 1) {
+                         collectedItems.set(lostItem, currentCount - 1);
+                    } else {
+                         collectedItems.delete(lostItem);
+                    }
+                    
+                    updateVisuals(lostItem); // Will update count
                     msgBox.innerHTML = `${pName}: 🕳️ <b>${data.name}!</b> Team Lost&nbsp;<b>${lostItem}</b>.`; 
                 } else {
                     msgBox.innerHTML = `${pName}: 🕳️ <b>${data.name}!</b> (Safe! No items).`;
@@ -839,17 +888,24 @@
         }
 
         if (data.type === 'gear') {
-            if (!collectedItems.has(data.name)) {
-                collectedItems.add(data.name);
-                updateVisuals(data.name, true);
+            // New logic: always add count
+            const currentCount = collectedItems.get(data.name) || 0;
+            collectedItems.set(data.name, currentCount + 1);
+            updateVisuals(data.name);
+
+            if (currentCount === 0) {
+                // First time found
                 msgBox.innerHTML = `${pName}: 🎉 <b>Found&nbsp;${data.name}</b>&nbsp;for the Team!`; 
                 msgBox.style.borderLeftColor = "#4CAF50";
+                
+                // Win Check: Unique items count
                 if (collectedItems.size === 9) {
                     msgBox.innerHTML = `🏆 <b>MISSION COMPLETE!</b> The Team wins!`; 
                     msgBox.style.background = "#FFD700";
                 }
             } else {
-                msgBox.innerHTML = `${pName}: 👍 Team already has&nbsp;<b>${data.name}</b>.`; 
+                // Duplicate found
+                msgBox.innerHTML = `${pName}: 👍 Team already has&nbsp;<b>${data.name}</b>. (x${currentCount + 1})`; 
                 msgBox.style.borderLeftColor = "#81C784";
             }
             return;
@@ -857,24 +913,41 @@
     }
 
     function updateVisuals(name, isVisible) {
-        // 1. Update Grid Badge
+        // Param isVisible is deprecated, using Map state
+        
+        const count = collectedItems.get(name) || 0;
         const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+        
+        // 1. Update Grid Badge
         const badge = document.getElementById(`badge-${formattedName}`);
-        if (badge) isVisible ? badge.classList.add('active') : badge.classList.remove('active');
+        if (badge) {
+             // Active state based on possession (>0)
+             if (count > 0) badge.classList.add('active');
+             else badge.classList.remove('active');
+             
+             // Update count badge text
+             const countEl = badge.querySelector('.item-count');
+             if(countEl) {
+                 countEl.innerText = count;
+                 // Show count if > 1
+                 if (count > 1) {
+                     countEl.classList.add('show');
+                 } else {
+                     countEl.classList.remove('show');
+                 }
+             }
+        }
 
         // 2. Update Santa Image
         const layerId = `layer-${formattedName}`;
         const imgLayer = document.getElementById(layerId);
         
         if (imgLayer) {
-            if (isVisible) {
+            if (count > 0) {
                 imgLayer.classList.remove('hidden-gear');
                 imgLayer.classList.add('visible-gear');
                 
-                // 確保圖片顯示 (如果之前被 onerror 隱藏)
                 if (imgLayer.style.display === 'none') {
-                    // 如果是本地圖片，這行其實沒用，因為瀏覽器已經認定載入失敗
-                    // 但如果是之後動態換圖片，這行會有用
                     imgLayer.style.display = 'block'; 
                 }
             } else {
