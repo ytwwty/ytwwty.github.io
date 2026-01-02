@@ -716,8 +716,15 @@
         const div = document.createElement('div');
         div.className = 'gear-badge';
         div.id = `badge-${item.id}`;
-        let emojiBackup = `<span class="gear-icon">${item.icon}</span>`;
-        div.innerHTML = `${emojiBackup}<div style="font-weight:bold">${item.id}</div>`;
+        
+        const imgPath = assets[item.id];
+        
+        let content = `
+            <img src="${imgPath}" class="gear-img-icon" alt="${item.id}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span class="gear-icon" style="display:none; font-size: 24px; margin-bottom: 5px;">${item.icon}</span>
+        `;
+        
+        div.innerHTML = `${content}<div style="font-weight:bold">${item.id}</div>`;
         gearGrid.appendChild(div);
     });
 
