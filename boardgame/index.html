@@ -33,15 +33,16 @@
         #game-wrapper {
             display: flex;
             gap: 20px;
-            align-items: center;
+            align-items: center; /* 垂直置中對齊 */
             margin-top: 20px;
             flex-wrap: wrap;
             justify-content: center;
-            max-width: 1400px;
+            max-width: 1600px; /* 稍微放寬以容納更大的轉盤 */
         }
 
+        /* --- 左側：花圈容器 (加大至 900px) --- */
         #board-container {
-            width: 700px;
+            width: 900px;
             height: auto; 
             position: relative;
             flex-shrink: 0;
@@ -53,9 +54,9 @@
         
         #board-base {
             position: absolute; 
-            top: 350px; left: 50%; 
-            width: 700px; 
-            height: 700px;
+            top: 450px; left: 50%; /* Center at 900/2 */
+            width: 900px; 
+            height: 900px;
             transform: translate(-50%, -50%);
             border-radius: 20px; 
             box-shadow: none; 
@@ -79,8 +80,16 @@
             line-height: 1.5;
         }
         
+        #board-base.no-image {
+            border: 5px dashed #ccc;
+            background-color: #eee;
+            border-radius: 50%; 
+            width: 800px; /* 無圖片時稍微小一點 */
+            height: 800px;
+        }
+
         svg {
-            width: 700px; height: 700px;
+            width: 900px; height: 900px;
             position: relative;
             z-index: 10;
             filter: none;
@@ -147,10 +156,11 @@
             pointer-events: none; transition: cx 0.5s, cy 0.5s;
         }
 
+        /* --- 右側：儀表板 (高度調整) --- */
         #dashboard {
             width: 340px;
             height: auto;
-            min-height: 700px;
+            min-height: 900px; /* 增加最小高度以匹配新的轉盤 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -179,9 +189,7 @@
         .player-btn.active { border-color: #333; transform: scale(1.2); z-index: 10; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
         .player-btn.frozen { opacity: 0.5; cursor: not-allowed; border-color: #00BCD4; background: #E0F7FA; }
         
-        /* 更新玩家顏色樣式 */
         .p-green { background: #43A047; color: white; } 
-        /* 修改黃色為深金黃色，並使用深色文字增加對比 */
         .p-yellow { background: #FBC02D; color: #333; } 
         .p-red { background: #E53935; color: white; } 
         .p-blue { background: #1E88E5; color: white; } 
@@ -210,15 +218,17 @@
             display: flex; align-items: center; justify-content: center; text-align: center;
         }
 
-        /* --- 🎅 聖誕老人變裝區 --- */
+        /* --- 🎅 聖誕老人變裝區 (微調尺寸以節省空間) --- */
         #santa-stage {
-            width: 280px; height: 380px;
+            width: 280px; 
+            height: 320px; /* 高度縮小 380 -> 320 */
             position: relative; background: #E1F5FE; 
             border-radius: 15px; border: 4px solid white;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
             margin-bottom: 20px; overflow: hidden;
         }
         
+        /* 圖片圖層的通用樣式 */
         .santa-layer { 
             position: absolute; 
             left: 50%; 
@@ -227,32 +237,33 @@
             pointer-events: none; 
         }
         
-        .base-body { width: 180px; bottom: 20px; z-index: 1; }
+        /* 基底位置與各部位依比例微縮 */
+        .base-body { width: 160px; bottom: 15px; z-index: 1; } /* 180 -> 160 */
         
-        #layer-Pants { width: 100px; bottom: 55px; z-index: 5; }
-        #layer-Boots { width: 110px; bottom: 20px; z-index: 6; }
-        #layer-Coat { width: 100px; bottom: 100px; z-index: 7; } 
-        #layer-Belt { width: 90px; bottom: 95px; z-index: 8; } 
-        #layer-Hat { width: 90px; top: 45px; margin-left: 5px; z-index: 9; }
+        #layer-Pants { width: 85px; bottom: 45px; z-index: 5; }
+        #layer-Boots { width: 95px; bottom: 15px; z-index: 6; }
+        #layer-Coat { width: 85px; bottom: 85px; z-index: 7; } 
+        #layer-Belt { width: 80px; bottom: 82px; z-index: 8; } 
+        #layer-Hat { width: 80px; top: 35px; margin-left: 4px; z-index: 9; }
         
         #layer-Mittens { 
-            width: 70px; 
+            width: 60px; 
             top: auto; 
-            bottom: 120px; 
+            bottom: 100px; 
             right: 20px; 
             left: auto;
             transform: none;
             z-index: 12; 
         }
         
-        #layer-Sleigh { width: 100px; bottom: 0px; left: 10px; right: auto; z-index: 10; transform: translateX(0); }
-        #layer-Reindeer { width: 100px; bottom: 10px; right: 0px; left: auto; z-index: 10; transform: translateX(0); }
+        #layer-Sleigh { width: 90px; bottom: 0px; left: 10px; right: auto; z-index: 10; transform: translateX(0); }
+        #layer-Reindeer { width: 90px; bottom: 10px; right: 0px; left: auto; z-index: 10; transform: translateX(0); }
         
         #layer-Presents { 
-            width: 70px; 
+            width: 60px; 
             top: auto; 
             left: 20px; 
-            bottom: 120px;
+            bottom: 100px;
             transform: none;
             z-index: 12; 
         }
@@ -374,6 +385,14 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         .close-btn:hover { background: #f0f0f0; }
+        
+        /* Mobile Scaling */
+        @media (max-width: 600px) {
+            .rules-columns { column-count: 1; }
+            /* Update scale calculation for 900px board */
+            #board-container { transform: scale(0.5); margin-bottom: -450px; margin-top: -200px; }
+            #game-wrapper { gap: 0; }
+        }
     </style>
 </head>
 <body>
@@ -443,7 +462,6 @@
 <script>
     const players = [
         { color: '#43A047', name: 'Green', id: 0, x: 500, y: 500, isSkipped: false },
-        // 更新黃色玩家顏色為深金黃色
         { color: '#FBC02D', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
         { color: '#E53935', name: 'Red', id: 2, x: 500, y: 500, isSkipped: false },
         { color: '#1E88E5', name: 'Blue', id: 3, x: 500, y: 500, isSkipped: false }
