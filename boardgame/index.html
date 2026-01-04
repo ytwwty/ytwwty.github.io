@@ -33,7 +33,7 @@
         #game-wrapper {
             display: flex;
             gap: 20px;
-            align-items: center; /* 垂直置中對齊 */
+            align-items: center;
             margin-top: 20px;
             flex-wrap: wrap;
             justify-content: center;
@@ -428,11 +428,7 @@
         <div id="message-box">Please upload board image or use default.</div>
 
         <div id="santa-stage">
-            <!-- 基底圖片 -->
-            <img id="base-santa-img" class="santa-layer base-body" alt="Santa Base" onerror="this.style.display='none'; document.getElementById('backup-santa').style.display='flex';">
-            
-            <!-- 備用 Emoji -->
-            <div id="backup-santa" class="santa-layer base-body" style="display:none; width:100%; height:100%; flex-direction:column; justify-content:center; align-items:center; bottom:0;">
+            <div id="backup-santa" class="santa-layer base-body" style="display:flex; width:100%; height:100%; flex-direction:column; justify-content:center; align-items:center; bottom:0;">
                 <div style="font-size:80px">🎅</div>
                 <div style="font-size:50px; margin-top:-20px">👕</div>
             </div>
@@ -534,8 +530,6 @@
 
     // 恢復 initStage 以生成圖片標籤
     function initStage() {
-        const baseImg = document.getElementById('base-santa-img');
-        baseImg.src = assets["BaseSanta"];
 
         const gearOrder = ["Pants", "Boots", "Coat", "Belt", "Hat", "Mittens", "Sleigh", "Reindeer", "Presents"];
         
