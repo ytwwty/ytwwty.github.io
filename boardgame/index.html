@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +13,13 @@
 
         body {
             background-color: #f0f4f8;
+            /* 背景圖設定 */
+            background-image: url('img/background/site-background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
             font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
             display: flex;
             align-items: center;
@@ -30,11 +37,12 @@
             margin-top: 20px;
             flex-wrap: wrap;
             justify-content: center;
-            max-width: 1400px;
+            max-width: 1600px; /* 稍微放寬以容納更大的轉盤 */
         }
 
+        /* --- 左側：花圈容器 (加大至 900px) --- */
         #board-container {
-            width: 700px;
+            width: 900px;
             height: auto; 
             position: relative;
             flex-shrink: 0;
@@ -46,15 +54,19 @@
         
         #board-base {
             position: absolute; 
-            top: 350px; left: 50%; 
-            width: 700px; 
-            height: 700px;
+            top: 450px; left: 50%; /* Center at 900/2 */
+            width: 900px; 
+            height: 900px;
             transform: translate(-50%, -50%);
             border-radius: 20px; 
             box-shadow: none; 
             z-index: 0;
+            
+            /* --- Default Background Setting --- */
+            background-image: url('img/background/SantaWheelArrow.png');
             background-color: transparent;
             border: none;
+            
             background-size: contain; 
             background-position: center;
             background-repeat: no-repeat;
@@ -72,12 +84,12 @@
             border: 5px dashed #ccc;
             background-color: #eee;
             border-radius: 50%; 
-            width: 600px;
-            height: 600px;
+            width: 800px; /* 無圖片時稍微小一點 */
+            height: 800px;
         }
 
         svg {
-            width: 700px; height: 700px;
+            width: 900px; height: 900px;
             position: relative;
             z-index: 10;
             filter: none;
@@ -144,10 +156,11 @@
             pointer-events: none; transition: cx 0.5s, cy 0.5s;
         }
 
+        /* --- 右側：儀表板 (高度調整) --- */
         #dashboard {
             width: 340px;
             height: auto;
-            min-height: 700px;
+            min-height: 900px; /* 增加最小高度以匹配新的轉盤 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -176,10 +189,10 @@
         .player-btn.active { border-color: #333; transform: scale(1.2); z-index: 10; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
         .player-btn.frozen { opacity: 0.5; cursor: not-allowed; border-color: #00BCD4; background: #E0F7FA; }
         
-        .p-blue { background: #42A5F5; color: white; }
-        .p-yellow { background: #FFEE58; color: #555; }
-        .p-pink { background: #EC407A; color: white; }
-        .p-purple { background: #AB47BC; color: white; }
+        .p-green { background: #43A047; color: white; } 
+        .p-yellow { background: #FBC02D; color: #333; } 
+        .p-red { background: #E53935; color: white; } 
+        .p-blue { background: #1E88E5; color: white; } 
 
         #dice-area { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
         #dice-btn {
@@ -205,9 +218,10 @@
             display: flex; align-items: center; justify-content: center; text-align: center;
         }
 
-        /* --- 🎅 聖誕老人變裝區 --- */
+        /* --- 🎅 聖誕老人變裝區 (微調尺寸以節省空間) --- */
         #santa-stage {
-            width: 280px; height: 380px;
+            width: 280px; 
+            height: 320px; /* 高度縮小 380 -> 320 */
             position: relative; background: #E1F5FE; 
             border-radius: 15px; border: 4px solid white;
             box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
@@ -223,58 +237,46 @@
             pointer-events: none; 
         }
         
-        /* 基底位置 */
-        .base-body { width: 180px; bottom: 20px; z-index: 1; }
+        /* 基底位置與各部位依比例微縮 */
+        .base-body { width: 160px; bottom: 15px; z-index: 1; } /* 180 -> 160 */
         
-        /* 各部位調整 */
-        #layer-Pants { width: 100px; bottom: 55px; z-index: 5; }
-        #layer-Boots { width: 110px; bottom: 20px; z-index: 6; }
+        #layer-Pants { width: 85px; bottom: 45px; z-index: 5; }
+        #layer-Boots { width: 95px; bottom: 15px; z-index: 6; }
+        #layer-Coat { width: 85px; bottom: 85px; z-index: 7; } 
+        #layer-Belt { width: 80px; bottom: 82px; z-index: 8; } 
+        #layer-Hat { width: 80px; top: 35px; margin-left: 4px; z-index: 9; }
         
-        /* 調整 1 & 4: 衣服和皮帶變小並下移 */
-        #layer-Coat { width: 100px; bottom: 100px; z-index: 7; } 
-        #layer-Belt { width: 90px; bottom: 95px; z-index: 8; } 
-        
-        /* 調整: 帽子縮小並往右、往下移一點 */
-        #layer-Hat { width: 90px; top: 45px; margin-left: 5px; z-index: 9; }
-        
-        /* 調整 2: 手套改到跟衣服同高但靠右 */
         #layer-Mittens { 
-            width: 70px; 
+            width: 60px; 
             top: auto; 
-            bottom: 120px; 
+            bottom: 100px; 
             right: 20px; 
             left: auto;
             transform: none;
             z-index: 12; 
         }
         
-        /* 調整 3: 雪橇與馴鹿位置對調 */
-        /* 雪橇在左，縮小並下移到boots下方附近 */
-        #layer-Sleigh { width: 100px; bottom: 0px; left: 10px; right: auto; z-index: 10; transform: translateX(0); }
-        /* 馴鹿在右 - 修改位置到左移一點 */
-        #layer-Reindeer { width: 100px; bottom: 10px; right: 0px; left: auto; z-index: 10; transform: translateX(0); }
+        #layer-Sleigh { width: 90px; bottom: 0px; left: 10px; right: auto; z-index: 10; transform: translateX(0); }
+        #layer-Reindeer { width: 90px; bottom: 10px; right: 0px; left: auto; z-index: 10; transform: translateX(0); }
         
         #layer-Presents { 
-            width: 70px; 
+            width: 60px; 
             top: auto; 
             left: 20px; 
-            bottom: 120px; /* 修改高度與mittens一致 */
+            bottom: 100px;
             transform: none;
             z-index: 12; 
         }
 
-        /* 顯示/隱藏動畫類別 */
         .hidden-gear { opacity: 0; transform: translateX(-50%) scale(0.5); }
         .visible-gear { opacity: 1; transform: translateX(-50%) scale(1); }
         
-        /* 側邊物品的特殊隱藏位置 (不置中) - 配合新位置調整隱藏方向 */
-        #layer-Sleigh.hidden-gear { transform: translateX(-50px) scale(0.5); opacity: 0; } /* 往左隱藏 */
+        #layer-Sleigh.hidden-gear { transform: translateX(-50px) scale(0.5); opacity: 0; }
         #layer-Sleigh.visible-gear { transform: translateX(0) scale(1); opacity: 1; }
         
-        #layer-Reindeer.hidden-gear { transform: translateX(50px) scale(0.5); opacity: 0; } /* 往右隱藏 */
+        #layer-Reindeer.hidden-gear { transform: translateX(50px) scale(0.5); opacity: 0; }
         #layer-Reindeer.visible-gear { transform: translateX(0) scale(1); opacity: 1; }
 
-        /* 特殊位置物品的顯示/隱藏覆寫 */
         #layer-Mittens.visible-gear, #layer-Presents.visible-gear {
             transform: scale(1);
             opacity: 1;
@@ -293,11 +295,40 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.3s;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 70px; border: 1px solid #eee;
+            position: relative;
+            overflow: visible;
         }
         .gear-badge.active {
             background: linear-gradient(135deg, #66BB6A, #43A047); color: white; 
             transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.2); border: none;
         }
+        
+        .item-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #FF5722;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            border: 2px solid white;
+            z-index: 5;
+            opacity: 0; 
+            transition: opacity 0.3s, transform 0.3s;
+            transform: scale(0);
+        }
+        .item-count.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
         .gear-img-icon { width: 35px; height: 35px; object-fit: contain; margin-bottom: 5px; }
         .gear-icon { font-size: 24px; margin-bottom: 5px; }
         
@@ -308,8 +339,6 @@
         .btn-rules:hover { background: #B71C1C; }
         .btn-config { background: #7B1FA2; }
         .btn-config:hover { background: #4A148C; }
-        .btn-download { background: #00897B; }
-        .btn-download:hover { background: #00695C; }
         
         #toggle-ids {
             font-size: 12px; margin-top: 5px; cursor: pointer; color: #666; text-decoration: underline;
@@ -322,35 +351,46 @@
             justify-content: center; align-items: center;
         }
         .modal-content {
-            background: white; width: 90%; max-width: 600px;
-            padding: 30px; border-radius: 15px;
+            background: transparent;
+            width: auto;
+            max-width: 95%;
+            padding: 0;
+            border: none;
+            box-shadow: none;
             position: relative;
-            max-height: 90vh; overflow-y: auto;
-            border-top: 10px solid var(--accent-color);
+            display: flex;
+            justify-content: center;
+        }
+        .rules-img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            object-fit: contain;
         }
         .close-btn {
-            position: absolute; top: 15px; right: 20px;
-            font-size: 24px; cursor: pointer; color: #999;
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
-        .close-btn:hover { color: #333; }
-        .rules-title { text-align: center; color: var(--accent-color); margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px dashed #eee; padding-bottom: 10px; }
-        .rules-columns {
-            column-count: 2;
-            column-gap: 30px;
-            column-rule: 1px solid #eee;
-        }
-        .rule-block {
-            break-inside: avoid;
-            margin-bottom: 20px;
-            background: #f9f9f9; padding: 10px; border-radius: 8px;
-        }
-        .rule-num { color: var(--primary-color); font-weight: bold; font-size: 1.2em; margin-right: 5px; }
-        .rule-head { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
-        .rule-text { color: #666; font-size: 0.9em; line-height: 1.4; }
-
+        .close-btn:hover { background: #f0f0f0; }
+        
+        /* Mobile Scaling */
         @media (max-width: 600px) {
             .rules-columns { column-count: 1; }
-            #board-container { transform: scale(0.5); margin-bottom: -350px; margin-top: -150px; }
+            /* Update scale calculation for 900px board */
+            #board-container { transform: scale(0.5); margin-bottom: -450px; margin-top: -200px; }
             #game-wrapper { gap: 0; }
         }
     </style>
@@ -359,16 +399,14 @@
 
 <div id="game-wrapper">
     <div id="board-container">
-        <div id="board-base" class="no-image">
-            1. 上傳圖片 (Image)<br>2. 上傳設定 (Config)<br><br>
-            ↘ 點擊右側按鈕 ↘
-        </div>
+        <!-- Default BG set in CSS, cleared text -->
+        <div id="board-base"></div>
         <svg id="game-board" viewBox="0 0 1000 1000">
             <g id="outer-layer-group"></g>
             <g id="inner-layer-group"></g>
             <g id="token-layer"></g>
         </svg>
-        <div id="toggle-ids" onclick="toggleDebugIds()">[👁️ 顯示/隱藏 格子編號]</div>
+        <div id="toggle-ids" onclick="toggleDebugIds()">[👁️ Show/Hide Grid IDs]</div>
     </div>
 
     <div id="dashboard">
@@ -376,10 +414,10 @@
         <div class="subtitle">Work together! Help Santa find his gear!</div>
         
         <div id="player-controls">
-            <div class="player-btn p-blue active" onclick="setPlayer(0)" title="Blue Elf">🧝</div>
+            <div class="player-btn p-green active" onclick="setPlayer(0)" title="Green Elf">🧝</div>
             <div class="player-btn p-yellow" onclick="setPlayer(1)" title="Yellow Elf">🧝‍♀️</div>
-            <div class="player-btn p-pink" onclick="setPlayer(2)" title="Pink Elf">🧝</div>
-            <div class="player-btn p-purple" onclick="setPlayer(3)" title="Purple Elf">🧝‍♀️</div>
+            <div class="player-btn p-red" onclick="setPlayer(2)" title="Red Elf">🧝</div>
+            <div class="player-btn p-blue" onclick="setPlayer(3)" title="Blue Elf">🧝‍♀️</div>
         </div>
 
         <div id="dice-area">
@@ -387,14 +425,10 @@
             <div id="dice-display">-</div>
         </div>
 
-        <div id="message-box">請上傳您的轉盤圖片！<br>Please upload board image.</div>
+        <div id="message-box">Please upload board image or use default.</div>
 
         <div id="santa-stage">
-            <!-- 基底圖片 -->
-            <img id="base-santa-img" class="santa-layer base-body" alt="Santa Base" onerror="this.style.display='none'; document.getElementById('backup-santa').style.display='flex';">
-            
-            <!-- 備用 Emoji -->
-            <div id="backup-santa" class="santa-layer base-body" style="display:none; width:100%; height:100%; flex-direction:column; justify-content:center; align-items:center; bottom:0;">
+            <div id="backup-santa" class="santa-layer base-body" style="display:flex; width:100%; height:100%; flex-direction:column; justify-content:center; align-items:center; bottom:0;">
                 <div style="font-size:80px">🎅</div>
                 <div style="font-size:50px; margin-top:-20px">👕</div>
             </div>
@@ -404,13 +438,12 @@
         
         <div class="btn-group">
             <input type="file" id="board-upload" accept="image/*" style="display:none" onchange="loadBoardImage(this)">
-            <button class="btn" onclick="document.getElementById('board-upload').click()" style="background:#E64A19;">🖼️ 上傳底圖</button>
+            <button class="btn" onclick="document.getElementById('board-upload').click()" style="background:#E64A19;">🖼️ Upload Background</button>
             
             <input type="file" id="config-upload" accept=".txt,.json" style="display:none" onchange="loadConfig(this)">
-            <button class="btn btn-config" onclick="document.getElementById('config-upload').click()">📄 上傳設定</button>
+            <button class="btn btn-config" onclick="document.getElementById('config-upload').click()">📄 Upload Config</button>
             
             <button class="btn btn-rules" onclick="toggleRules()">📜 Rules</button>
-            <button class="btn btn-download" onclick="downloadGame()">📥 下載</button>
         </div>
     </div>
 </div>
@@ -418,43 +451,20 @@
 <div id="rules-modal" onclick="if(event.target === this) toggleRules()">
     <div class="modal-content">
         <span class="close-btn" onclick="toggleRules()">&times;</span>
-        <h3 class="rules-title">🎄 Cooperative Rules</h3>
-        <div class="rules-columns">
-            <div class="rule-block">
-                <span class="rule-num">1.</span> <span class="rule-head">Mission (目標)</span>
-                <div class="rule-text"><b>Cooperate!</b> The 4 Elves must work together to collect all 9 items. You are a team!</div>
-            </div>
-            <div class="rule-block">
-                <span class="rule-num">2.</span> <span class="rule-head">Movement (移動)</span>
-                <div class="rule-text">Roll the dice 🎲. Start from the <b>CENTER</b>! Choose one of the 4 paths to begin.</div>
-            </div>
-            <div class="rule-block">
-                <span class="rule-num">3.</span> <span class="rule-head">Traps (陷阱)</span>
-                <div class="rule-text">
-                    <b>Hole in Sock</b>: Team loses an item.<br>
-                    <b>Snowman</b>: Freeze! Miss a turn.<br>
-                    <b>Snowstorm</b>: Go back to center (Use this to switch paths!).
-                </div>
-            </div>
-            <div class="rule-block">
-                <span class="rule-num">4.</span> <span class="rule-head">Winning (勝利)</span>
-                <div class="rule-text">When the team lights up all 9 items, Santa is ready! Everyone wins together! 🎉</div>
-            </div>
-        </div>
+        <img src="img/rules/rules.png" alt="Game Rules" class="rules-img">
     </div>
 </div>
 
 <script>
     const players = [
-        { color: '#42A5F5', name: 'Blue', id: 0, x: 500, y: 500, isSkipped: false },
-        { color: '#FFEE58', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
-        { color: '#EC407A', name: 'Pink', id: 2, x: 500, y: 500, isSkipped: false },
-        { color: '#AB47BC', name: 'Purple', id: 3, x: 500, y: 500, isSkipped: false }
+        { color: '#43A047', name: 'Green', id: 0, x: 500, y: 500, isSkipped: false },
+        { color: '#FBC02D', name: 'Yellow', id: 1, x: 500, y: 500, isSkipped: false },
+        { color: '#E53935', name: 'Red', id: 2, x: 500, y: 500, isSkipped: false },
+        { color: '#1E88E5', name: 'Blue', id: 3, x: 500, y: 500, isSkipped: false }
     ];
     let currentPlayerId = 0;
-    let collectedItems = new Set();
+    let collectedItems = new Map();
 
-    // 更新 Assets 路徑
     const assets = {
         "Hat": "img/collection/hat.png",
         "Coat": "img/collection/coat.png",
@@ -485,8 +495,8 @@
         "hat": { type: "gear", icon: "🧢", name: "Hat" },
         "miss a turn": { type: "trap", icon: "🛑", name: "Miss a Turn" },
         "snowman": { type: "trap", icon: "⛄", name: "Snowman" },
-        "wreath": { type: "deco", icon: "🎄", name: "Wreath" },
-        "christmas tree": { type: "deco", icon: "🎄", name: "Wreath" }, 
+        "wreath": { type: "bonus", icon: "🎄", name: "Wreath" },
+        "christmas tree": { type: "bonus", icon: "🎄", name: "Wreath" }, 
         "lost a piece": { type: "trap", icon: "💨", name: "Lost a Piece" },
         "move back 1 space": { type: "trap", icon: "🔙", name: "Move Back" },
         "move ahead 2 spaces": { type: "bonus", icon: "⏩", name: "Move Ahead 2" },
@@ -515,11 +525,11 @@
     const diceBtn = document.getElementById('dice-btn');
     const boardContainer = document.getElementById('board-container');
     const santaStage = document.getElementById('santa-stage');
+    // 增加全域變數宣告
+    const rulesModal = document.getElementById('rules-modal');
 
     // 恢復 initStage 以生成圖片標籤
     function initStage() {
-        const baseImg = document.getElementById('base-santa-img');
-        baseImg.src = assets["BaseSanta"];
 
         const gearOrder = ["Pants", "Boots", "Coat", "Belt", "Hat", "Mittens", "Sleigh", "Reindeer", "Presents"];
         
@@ -541,7 +551,42 @@
             santaStage.appendChild(img);
         });
     }
-    initStage(); // 呼叫初始化
+    
+    // Initialize on load with default settings
+    window.onload = function() {
+        initStage();
+        initTokens();
+        
+        // 恢復自動讀取 config.txt
+        fetch('config.txt')
+            .then(response => {
+                if (!response.ok) throw new Error("No config file");
+                return response.text();
+            })
+            .then(text => {
+                parseConfig(text);
+                refreshBoard();
+                console.log("Default config loaded");
+            })
+            .catch(e => console.log("Using hardcoded defaults"));
+        
+        refreshBoard();
+        
+        // Set default image mode since we have a default image
+        boardContainer.classList.add('image-mode');
+        msgBox.innerHTML = "Ready to play! Roll the dice.";
+        msgBox.style.borderLeftColor = "#4CAF50";
+
+        // Add ESC key listener for rules
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") {
+                const modal = document.getElementById('rules-modal');
+                if (modal.style.display === 'flex') {
+                    toggleRules();
+                }
+            }
+        });
+    };
 
     function loadBoardImage(input) {
         if (input.files && input.files[0]) {
@@ -627,7 +672,7 @@
         const layers = [
             { rOut: 360, rIn: 260 }, 
             { rOut: 260, rIn: 160 }, 
-            { rOut: 160, rIn: 60 }   
+            { rOut: 160, rIn: 70 }   
         ]; 
         
         arms.forEach((armDeg, armIndex) => {
@@ -697,19 +742,6 @@
         boardContainer.classList.toggle('show-ids');
     }
 
-    function downloadGame() {
-        const htmlContent = document.documentElement.outerHTML;
-        const blob = new Blob([htmlContent], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'santas_adventure_game.html';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
     function toggleRules() {
         rulesModal.style.display = (rulesModal.style.display === 'flex') ? 'none' : 'flex';
     }
@@ -730,13 +762,21 @@
         const div = document.createElement('div');
         div.className = 'gear-badge';
         div.id = `badge-${item.id}`;
-        let emojiBackup = `<span class="gear-icon">${item.icon}</span>`;
-        div.innerHTML = `${emojiBackup}<div style="font-weight:bold">${item.id}</div>`;
+        
+        const imgPath = assets[item.id];
+        
+        // 增加一個顯示數量的 span 元素 (預設隱藏)
+        let content = `
+            <img src="${imgPath}" class="gear-img-icon" alt="${item.id}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span class="gear-icon" style="display:none; font-size: 24px; margin-bottom: 5px;">${item.icon}</span>
+            <span class="item-count">0</span>
+        `;
+        
+        div.innerHTML = `${content}<div style="font-weight:bold">${item.id}</div>`;
         gearGrid.appendChild(div);
     });
 
-    refreshBoard();
-
+    // Game Logic
     function initTokens() {
         players.forEach(p => {
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -745,10 +785,11 @@
             circle.setAttribute("fill", p.color);
             circle.setAttribute("class", "elf-token");
             circle.id = `token-${p.id}`;
+            // Hidden initially
+            circle.style.display = 'none';
             tokenLayer.appendChild(circle);
         });
     }
-    initTokens();
 
     function setPlayer(id) {
         currentPlayerId = id;
@@ -792,6 +833,8 @@
         const offsetX = (playerId % 2 === 0 ? -10 : 10);
         const offsetY = (playerId < 2 ? -10 : 10);
         const token = document.getElementById(`token-${playerId}`);
+        // Make token visible on first move
+        token.style.display = 'block';
         if (isInner) innerGroup.appendChild(token); else tokenLayer.appendChild(token);
         token.setAttribute("cx", x + offsetX);
         token.setAttribute("cy", y + offsetY);
@@ -801,14 +844,31 @@
         const player = players[currentPlayerId];
         const pName = `<span style="color:${player.color}">${player.name} Elf</span>`;
 
+        // 1. Force space before/after variables with &nbsp;
         if (data.type === 'trap') {
              if (data.name === "Hole in Sock" || data.name === "Lost a Piece") {
                 if (collectedItems.size > 0) {
-                    const itemsArray = Array.from(collectedItems);
-                    const lostItem = itemsArray[Math.floor(Math.random() * itemsArray.length)];
-                    collectedItems.delete(lostItem);
-                    updateVisuals(lostItem, false);
-                    msgBox.innerHTML = `${pName}: 🕳️ <b>${data.name}!</b> Team Lost ${lostItem}.`; 
+                    // Logic to find item to lose: prioritize duplicates
+                    let candidates = [];
+                    for (let [key, val] of collectedItems.entries()) {
+                        if (val > 1) candidates.push(key);
+                    }
+                    if (candidates.length === 0) {
+                         candidates = Array.from(collectedItems.keys());
+                    }
+                    
+                    const lostItem = candidates[Math.floor(Math.random() * candidates.length)];
+                    
+                    // Decrease count
+                    const currentCount = collectedItems.get(lostItem);
+                    if (currentCount > 1) {
+                         collectedItems.set(lostItem, currentCount - 1);
+                    } else {
+                         collectedItems.delete(lostItem);
+                    }
+                    
+                    updateVisuals(lostItem); // Will update count
+                    msgBox.innerHTML = `${pName}: 🕳️ <b>${data.name}!</b> Team Lost&nbsp;<b>${lostItem}</b>.`; 
                 } else {
                     msgBox.innerHTML = `${pName}: 🕳️ <b>${data.name}!</b> (Safe! No items).`;
                 }
@@ -827,13 +887,19 @@
 
         if (data.type === 'bonus') {
             if (data.name === "Candy Cane") {
-                msgBox.innerHTML = `${pName}: 🍬 <b>Candy Cane!</b> Move 1 space forward.`;
+                // Corrected grammar
+                msgBox.innerHTML = `${pName}: 🍬 <b>Candy Cane!</b> Yum! Nothing happened.`;
             } else if (data.name === "Gingerbread" || data.name === "Move Ahead 2") {
-                msgBox.innerHTML = `${pName}: 🍪 <b>${data.name}!</b> Move 2 spaces.`;
+                // Corrected grammar
+                msgBox.innerHTML = `${pName}: 🍪 <b>${data.name}!</b> Yum! Nothing happened.`;
             } else if (data.name === "Stockings") {
-                msgBox.innerHTML = `${pName}: 🧦 <b>Stockings!</b> Lucky! Roll Again!`;
+                // Update text to Move 2 spaces
+                msgBox.innerHTML = `${pName}: 🧦 <b>Stockings!</b> Move forward 2 spaces!`;
             } else if (data.name === "Star") {
                 msgBox.innerHTML = `${pName}: ⭐ <b>Star!</b> Super Bonus!`;
+            } else if (data.name === "Wreath") {
+                // Wreath is now Roll Again
+                msgBox.innerHTML = `${pName}: 🎄 <b>Wreath!</b> Roll Again!`;
             }
             msgBox.style.borderLeftColor = "#E91E63";
             return;
@@ -846,17 +912,24 @@
         }
 
         if (data.type === 'gear') {
-            if (!collectedItems.has(data.name)) {
-                collectedItems.add(data.name);
-                updateVisuals(data.name, true);
-                msgBox.innerHTML = `${pName}: 🎉 <b>Found ${data.name}</b> for the Team!`; 
+            // New logic: always add count
+            const currentCount = collectedItems.get(data.name) || 0;
+            collectedItems.set(data.name, currentCount + 1);
+            updateVisuals(data.name);
+
+            if (currentCount === 0) {
+                // First time found
+                msgBox.innerHTML = `${pName}: 🎉 <b>Found&nbsp;${data.name}</b>&nbsp;for the Team!`; 
                 msgBox.style.borderLeftColor = "#4CAF50";
+                
+                // Win Check: Unique items count
                 if (collectedItems.size === 9) {
                     msgBox.innerHTML = `🏆 <b>MISSION COMPLETE!</b> The Team wins!`; 
                     msgBox.style.background = "#FFD700";
                 }
             } else {
-                msgBox.innerHTML = `${pName}: 👍 Team already has <b>${data.name}</b>.`; 
+                // Duplicate found
+                msgBox.innerHTML = `${pName}: 👍 Team already has&nbsp;<b>${data.name}</b>. (x${currentCount + 1})`; 
                 msgBox.style.borderLeftColor = "#81C784";
             }
             return;
@@ -864,24 +937,41 @@
     }
 
     function updateVisuals(name, isVisible) {
-        // 1. Update Grid Badge
+        // Param isVisible is deprecated, using Map state
+        
+        const count = collectedItems.get(name) || 0;
         const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+        
+        // 1. Update Grid Badge
         const badge = document.getElementById(`badge-${formattedName}`);
-        if (badge) isVisible ? badge.classList.add('active') : badge.classList.remove('active');
+        if (badge) {
+             // Active state based on possession (>0)
+             if (count > 0) badge.classList.add('active');
+             else badge.classList.remove('active');
+             
+             // Update count badge text
+             const countEl = badge.querySelector('.item-count');
+             if(countEl) {
+                 countEl.innerText = count;
+                 // Show count if > 1
+                 if (count > 1) {
+                     countEl.classList.add('show');
+                 } else {
+                     countEl.classList.remove('show');
+                 }
+             }
+        }
 
         // 2. Update Santa Image
         const layerId = `layer-${formattedName}`;
         const imgLayer = document.getElementById(layerId);
         
         if (imgLayer) {
-            if (isVisible) {
+            if (count > 0) {
                 imgLayer.classList.remove('hidden-gear');
                 imgLayer.classList.add('visible-gear');
                 
-                // 確保圖片顯示 (如果之前被 onerror 隱藏)
                 if (imgLayer.style.display === 'none') {
-                    // 如果是本地圖片，這行其實沒用，因為瀏覽器已經認定載入失敗
-                    // 但如果是之後動態換圖片，這行會有用
                     imgLayer.style.display = 'block'; 
                 }
             } else {
